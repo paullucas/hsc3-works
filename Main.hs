@@ -1,5 +1,3 @@
--- https://github.com/lpil/learning-haskell/blob/master/hsc3-play/Main.hs
-
 module Main where
 
 import System.Process
