@@ -1,12 +1,12 @@
 -- https://github.com/lpil/learning-haskell/blob/master/hsc3-play/Main.hs
 
-module Boot where
+module Main where
 
 import System.Process
 import Sound.SC3
 
-boot :: IO ()
-boot = do
+main :: IO ()
+main = do
     system "scsynth -u 57110 &"
     system "sleep 5"
     system "jack_connect SuperCollider:out_1 system:playback_1"
