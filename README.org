@@ -1,5 +1,5 @@
 * Quick Start
 - C-x C-f Main.hs
-- C-c M-m
+- C-c M-m (hsc3-load-main)
 - C-x C-f 1.hs
 - C-c C-c (hsc3-run-line)
