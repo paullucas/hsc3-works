@@ -4,5 +4,6 @@
 - C-x C-f 1.hs
 - C-c C-c (hsc3-run-line)
 * Thanks
-- https://github.com/lpil/learning-haskell/blob/master/hsc3-play/Main.hs
+- https://github.com/lpil/learning-haskell
 - https://github.com/kovach/noise
+- https://github.com/chronopoulos/cyclophone
