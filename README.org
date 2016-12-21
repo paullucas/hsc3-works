@@ -7,3 +7,6 @@
 - https://github.com/lpil/learning-haskell
 - https://github.com/kovach/noise
 - https://github.com/chronopoulos/cyclophone
+- https://github.com/8c6794b6/haskell-sc-scratch
+- http://hackage.haskell.org/package/conductive-hsc3
+- https://8c6794b6.github.io/posts/2011-10-25_adhoc-update-of-ugen-parameters.html

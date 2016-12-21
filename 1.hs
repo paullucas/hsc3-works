@@ -1,13 +1,14 @@
 import Sound.SC3
-:load functions.hs
+import Sound.OSC
+:l functions.hs
 
 let f = map ("/home/paulll/Producing/duplicates/48/wav/" ++) ["1-4.wav", "1-7.wav"]
 
 g
 o (sw 100 0.1)
-o (s 220 0.1)
+o (so 220 0.1)
 mono (sw 100 0.1)
-mono (s 220 0.1)
+mono (so 220 0.1)
 k
 
 g
