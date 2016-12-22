@@ -20,7 +20,7 @@ gx x = withSC3 (send (g_new [(x, AddToTail, 0)]))
 kx x = withSC3 (send (n_free [x]))
 
 -- For node x, set y to z
-ctl x y z = withSC3 (send (n_set1 x y z))
+c x y z = withSC3 (send (n_set1 x y z))
 
 -- Audition x
 o x = audition x
@@ -41,38 +41,112 @@ h2m f = round (69 + (12 * ((log (f * 0.0022727272727)) / (log 2))))
 
 -- Synthdefs
 
-so n f a at =
-  let {
-    [freq, amp, gate, att, rel] = control_set [control KR "f" f
-                                              ,control KR "a" a
-                                              ,control KR "g" 1
-                                              ,control KR "at" at
-                                              ,control KR "rl" 40];
-      synth = (sinOsc AR freq 1);
-      env = (synth * (envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)));
-      output = (env * amp)
-    }
-  in
-    withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
-                ;send (s_new "so" n AddToTail 1 []))
-
+tg :: Int -> Double -> Double -> Double -> Double -> IO ()
 tg n b r a at =
-  let {
-    [buf, rate, amp, dur, gate, att, rel] = control_set [control KR "b" b
-                                                        ,control KR "r" r
-                                                        ,control KR "a" a
-                                                        ,control KR "d" 5
-                                                        ,control KR "g" 1
-                                                        ,control KR "at" at
-                                                        ,control KR "rl" 40];
-      cpos = ((sinOsc KR 0.03 0) * 0.1);
-      synth = (tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1);
-      env = (synth * (envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)));
-      output = (env * amp)
-    }
-  in
-    withSC3 (do async (d_recv (synthdef "tg" (out 0 output)))
-                ;send (s_new "tg" n AddToTail 1 []))
+  withSC3 (do async (d_recv (synthdef "tg" (out 0 output)))
+              ;send (s_new "tg" n AddToTail 1 []))
+  where [buf, rate, amp, dur, gate, att, rel] = control_set [control KR "b" b
+                                                            ,control KR "r" r
+                                                            ,control KR "a" a
+                                                            ,control KR "d" 5
+                                                            ,control KR "g" 1
+                                                            ,control KR "at" at
+                                                            ,control KR "rl" 40]
+        cpos :: UGen
+        cpos = (sinOsc KR 0.03 0) * 0.1
+        synth :: UGen
+        synth = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+        output :: UGen
+        output = (synth * env) * amp
+
+tgr :: Int -> Double -> Double -> Double -> Double -> IO ()
+tgr n b r a at =
+  withSC3 (do async (d_recv (synthdef "tgr" (out 0 output)))
+              ;send (s_new "tgr" n AddToTail 1 []))
+  where [buf, rate, amp, dur, gate, att, rel] = control_set [control KR "b" b
+                                                            ,control KR "r" r
+                                                            ,control KR "a" a
+                                                            ,control KR "d" 5
+                                                            ,control KR "g" 1
+                                                            ,control KR "at" at
+                                                            ,control KR "rl" 40]
+        cpos :: UGen
+        cpos = (sinOsc KR 0.03 0) * 0.1
+        synth :: UGen
+        synth = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
+        rvrb :: UGen
+        rvrb = freeVerb synth 0.5 1 1
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+        output :: UGen
+        output = (rvrb * env) * amp
+
+so :: Int -> Double -> Double -> IO ()
+so n f a = withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
+                       ;send (s_new "so" n AddToTail 1 []))
+  where [freq, amp, gate] = control_set [control KR "f" f
+                                        ,control KR "a" a
+                                        ,control KR "g" 1]
+        synth :: UGen
+        synth = sinOsc AR freq 1
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR 25 1 25 EnvLin)
+        output :: UGen
+        output = (synth * env) * amp
+
+sor :: Int -> Double -> Double -> IO ()
+sor n f a = withSC3 (do async (d_recv (synthdef "sor" (out 0 output)))
+                        ;send (s_new "sor" n AddToTail 1 []))
+  where [freq, amp, gate] = control_set [control KR "f" f
+                                        ,control KR "a" a
+                                        ,control KR "g" 1]
+        synth :: UGen
+        synth = sinOsc AR freq 1
+        rvrb :: UGen
+        rvrb = freeVerb synth 0.33 0.5 0.5
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR 25 1 25 EnvLin)
+        output :: UGen
+        output = (rvrb * env) * amp
+
+---
+
+-- so n f a at =
+--   let {
+--     [freq, amp, gate, att, rel] = control_set [control KR "f" f
+--                                               ,control KR "a" a
+--                                               ,control KR "g" 1
+--                                               ,control KR "at" at
+--                                               ,control KR "rl" 40];
+--       synth = (sinOsc AR freq 1);
+--       env = (synth * (envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)));
+--       output = (env * amp)
+--     }
+--   in
+--     withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
+--                 ;send (s_new "so" n AddToTail 1 []))
+
+
+-- tg n b r a at =
+--   let {
+--     [buf, rate, amp, dur, gate, att, rel] = control_set [control KR "b" b
+--                                                         ,control KR "r" r
+--                                                         ,control KR "a" a
+--                                                         ,control KR "d" 5
+--                                                         ,control KR "g" 1
+--                                                         ,control KR "at" at
+--                                                         ,control KR "rl" 40];
+--       cpos = ((sinOsc KR 0.03 0) * 0.1);
+--       synth = (tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1);
+--       env = (synth * (envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)));
+--       output = (env * amp)
+--     }
+--   in
+--     withSC3 (do async (d_recv (synthdef "tg" (out 0 output)))
+--                 ;send (s_new "tg" n AddToTail 1 []))
+
 
 ---
 
