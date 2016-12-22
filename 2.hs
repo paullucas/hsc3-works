@@ -1,5 +1,4 @@
-import Sound.SC3
-import Sound.OSC
+:m + Sound.SC3 Sound.OSC
 :l functions.hs
 
 -- synthdef + control msg example from docs

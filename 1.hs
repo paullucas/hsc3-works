@@ -1,5 +1,4 @@
-import Sound.SC3
-import Sound.OSC
+:m + Sound.SC3 Sound.OSC
 :l functions.hs
 
 let f = map ("/home/paulll/Producing/duplicates/48/wav/" ++) ["1-4.wav", "1-7.wav"]
