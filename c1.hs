@@ -2,9 +2,9 @@ import Sound.SC3
 import Sound.OSC
 :l functions.hs
 
-let f = map ("/home/paulll/Producing/november4th-2016/chops/smpls-mono/" ++) ["s7m.wav", "s8m.wav"]
-rb 0 (f !! 0)
-rb 1 (f !! 1)
+let f = sd "/home/paulll/Producing/november4th-2016/chops/smpls-mono/" ["s7m.wav", "s8m.wav"]
+(f !! 0)
+(f !! 1)
 
 g
 c1tg 2 1 5 0.6 2000 125 0.5 40

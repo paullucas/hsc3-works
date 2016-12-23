@@ -39,6 +39,11 @@ rb bn fn =
   withSC3 (do
     async (b_allocRead bn fn 0 0))
 
+-- Load samples in directory
+sd :: [Char] -> [[Char]] -> [IO Message]
+sd dn fl =
+  map (\x -> withSC3 (do async (b_allocRead (fromJust (findIndex (x ==) fl)) (dn ++ x) 0 0))) fl
+
 -- Convert midi note number to hz
 m2h :: Floating a => a -> a
 m2h n = 440.0 * (2.0 ** ((n - 69.0) / 12.0))
@@ -48,6 +53,7 @@ h2m :: (Floating a, Integral b, RealFrac a) => a -> b
 h2m f = round (69 + (12 * ((log (f * 0.0022727272727)) / (log 2))))
 
 -- SynthDefs
+
 tg :: Int -> Double -> Double -> Double -> Double -> IO ()
 tg n b r a at =
   withSC3 (do async (d_recv (synthdef "tg" (out 0 output)))
