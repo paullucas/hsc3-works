@@ -2,7 +2,7 @@
 :l functions.hs
 
 g
-so 2 (m2h 63) 0.2 2
+so 2 (m2h 63) 0.2 25
 c 2 "f" (m2h 65)
 c 2 "f" (m2h 68)
 c 2 "f" (m2h 75)

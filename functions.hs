@@ -6,35 +6,45 @@ import Data.List
 import Data.Maybe
 
 -- Create group 1
+g :: IO ()
 g = withSC3 (send (g_new [(1, AddToTail, 0)]))
 
 -- Kill group 1
+k :: IO ()
 k = withSC3 (send (n_free [1]))
 
 -- Create group x
+gx :: Int -> IO ()
 gx x = withSC3 (send (g_new [(x, AddToTail, 0)]))
 
 -- Kill group x
+kx :: Int -> IO ()
 kx x = withSC3 (send (n_free [x]))
 
 -- For node x, set y to z
+c :: Int -> String -> Double -> IO ()
 c x y z = withSC3 (send (n_set1 x y z))
 
 -- Audition x
+o :: Audible e => e -> IO ()
 o x = audition x
 
 -- Audition mono signal to out 0 & 1
+mono :: UGen -> IO ()
 mono x = audition $ mce [out 0 x, out 1 x]
 
 -- Create buffer & load file (fn)
+rb :: Int -> String -> IO (Message)
 rb bn fn =
   withSC3 (do
     async (b_allocRead bn fn 0 0))
 
 -- Convert midi note number to hz
+m2h :: Floating a => a -> a
 m2h n = 440.0 * (2.0 ** ((n - 69.0) / 12.0))
 
 -- Convert hz to midi note number
+h2m :: (Floating a, Integral b, RealFrac a) => a -> b
 h2m f = round (69 + (12 * ((log (f * 0.0022727272727)) / (log 2))))
 
 -- SynthDefs
@@ -80,30 +90,57 @@ tgr n b r a at =
         output :: UGen
         output = (rvrb * env) * amp
 
-so :: Int -> Double -> Double -> IO ()
-so n f a = withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
-                       ;send (s_new "so" n AddToTail 1 []))
-  where [freq, amp, gate] = control_set [control KR "f" f
-                                        ,control KR "a" a
-                                        ,control KR "g" 1]
+so :: Int -> Double -> Double -> Double -> IO ()
+so n f a at = withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
+                          ;send (s_new "so" n AddToTail 1 []))
+  where [freq, amp, gate, att, rel] = control_set [control KR "f" f
+                                                  ,control KR "a" a
+                                                  ,control KR "g" 1
+                                                  ,control KR "at" at
+                                                  ,control KR "rl" 40]
         synth :: UGen
         synth = sinOsc AR freq 1
         env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR 25 1 25 EnvLin)
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
         output :: UGen
         output = (synth * env) * amp
 
-sor :: Int -> Double -> Double -> IO ()
-sor n f a = withSC3 (do async (d_recv (synthdef "sor" (out 0 output)))
-                        ;send (s_new "sor" n AddToTail 1 []))
-  where [freq, amp, gate] = control_set [control KR "f" f
-                                        ,control KR "a" a
-                                        ,control KR "g" 1]
+sor :: Int -> Double -> Double -> Double -> IO ()
+sor n f a at = withSC3 (do async (d_recv (synthdef "sor" (out 0 output)))
+                           ;send (s_new "sor" n AddToTail 1 []))
+  where [freq, amp, gate, att, rel] = control_set [control KR "f" f
+                                                  ,control KR "a" a
+                                                  ,control KR "g" 1
+                                                  ,control KR "at" at
+                                                  ,control KR "rl" 40]
         synth :: UGen
         synth = sinOsc AR freq 1
         rvrb :: UGen
         rvrb = freeVerb synth 0.33 0.5 0.5
         env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR 25 1 25 EnvLin)
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
         output :: UGen
         output = (rvrb * env) * amp
+
+
+-- tgrv :: Int -> Double -> Double -> Double -> Double -> IO ()
+-- tgrv n b r a at =
+--   withSC3 (do async (d_recv (synthdef "tgrv" (out 0 (output))))
+--               ;send (s_new "tgr" n AddToTail 1 []))
+--   where [buf, rate, amp, dur, gate, att, rel] = control_set [control KR "b" b
+--                                                             ,control KR "r" r
+--                                                             ,control KR "a" a
+--                                                             ,control KR "d" 5
+--                                                             ,control KR "g" 1
+--                                                             ,control KR "at" at
+--                                                             ,control KR "rl" 40]
+--         cpos :: UGen
+--         cpos = (sinOsc KR 0.03 0) * 0.1
+--         synth :: UGen
+--         synth = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
+--         rvrb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen
+--         rvrb = (gVerb synth 0.5 1 1)
+--         env :: UGen
+--         env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+--         output :: UGen
+--         output = (rvrb * env) * amp
