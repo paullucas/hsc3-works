@@ -1,9 +1,16 @@
-* Quick Start
+* HSC3 Works
+** Compositions
+- [[https://github.com/paullucas/hsc3-works/blob/master/c1.hs][c1.hs]] - Unreleased - ([[https://github.com/paullucas/overtone-works/blob/master/src/otworks/c20.clj][c20.clj]] rewrite) - [[https://github.com/paullucas/hsc3-works/blob/master/functions.hs#L147][SynthDefs]]
+** Misc
+- [[https://github.com/paullucas/hsc3-works/blob/master/m1.hs][m1.hs]]
+- [[https://github.com/paullucas/hsc3-works/blob/master/m2.hs][m2.hs]]
+- [[https://github.com/paullucas/hsc3-works/blob/master/m3.hs][m3.hs]]
+** Quick Start
 - C-x C-f Main.hs
 - C-c M-m (hsc3-load-main)
 - C-x C-f 1.hs
 - C-c C-c (hsc3-run-line)
-* Thanks
+** Thanks
 - https://github.com/lpil/learning-haskell
 - https://github.com/kovach/noise
 - https://github.com/chronopoulos/cyclophone
