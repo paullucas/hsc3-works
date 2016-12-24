@@ -60,6 +60,38 @@ h2m f = round (69 + (12 * ((log (f * 0.0022727272727)) / (log 2))))
 (?) :: Bool -> (t, t) -> t
 a ? (b, c) = if a then b else c
 
+-- UGens
+
+tgrain :: UGen -> UGen -> UGen -> UGen -> UGen
+tgrain buf rate cpos dur = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
+
+tgrainv :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen
+tgrainv buf rate cpos dur tamp = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 tamp 1
+
+cpos :: UGen
+cpos = (sinOsc KR 0.03 0) * 0.1
+
+env :: UGen -> UGen -> UGen -> UGen -> UGen
+env gate att rel input = input * envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+
+lf :: UGen -> UGen -> UGen
+lf lff input = lpf input lff
+
+hf :: UGen -> UGen -> UGen
+hf hff input = hpf input hff
+
+fvrb :: UGen -> UGen
+fvrb input = freeVerb input 0.5 1 1
+
+-- fvrbv :: UGen -> UGen
+fvrbv m r d input = freeVerb input m r d
+
+gvrb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen
+gvrb rs rt d ibw s dl er tl mrs input = gVerb input rs rt d ibw s dl er tl mrs
+
+fout :: Num a => a -> a -> a
+fout amp input = input * amp
+
 -- SynthDefs
 
 tg :: Int -> Double -> Double -> Double -> Double -> IO ()
@@ -73,14 +105,11 @@ tg n b r a at =
                                                             ,control KR "g" 1
                                                             ,control KR "at" at
                                                             ,control KR "rl" 40]
-        cpos :: UGen
-        cpos = (sinOsc KR 0.03 0) * 0.1
-        synth :: UGen
-        synth = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = (synth * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate att rel
+                 $ tgrain buf rate cpos dur
+
 
 tgr :: Int -> Double -> Double -> Double -> Double -> IO ()
 tgr n b r a at =
@@ -93,16 +122,11 @@ tgr n b r a at =
                                                             ,control KR "g" 1
                                                             ,control KR "at" at
                                                             ,control KR "rl" 40]
-        cpos :: UGen
-        cpos = (sinOsc KR 0.03 0) * 0.1
-        synth :: UGen
-        synth = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
-        rvrb :: UGen
-        rvrb = freeVerb synth 0.5 1 1
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = (rvrb * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate att rel
+                 $ fvrb
+                 $ tgrain buf rate cpos dur
 
 tgg :: Int -> Double -> Double -> Double -> Double -> IO ()
 tgg n b r a at =
@@ -115,16 +139,15 @@ tgg n b r a at =
                                                             ,control KR "g" 1
                                                             ,control KR "at" at
                                                             ,control KR "rl" 40]
-        cpos :: UGen
-        cpos = (sinOsc KR 0.03 0) * 0.1
-        synth :: UGen
-        synth = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 0.75 1
-        gvrb :: UGen
-        gvrb = gVerb synth 0.5 1.0 1.0 0.5 15 1 0.7 0.5 300 
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = (gvrb * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate att rel
+                 $ gvrb 0.5 1.0 1.0 0.5 15 1 0.7 0.5 300
+                 $ tgrainv buf rate cpos dur 0.75
+
+
+
+---
 
 so :: Int -> Double -> Double -> Double -> IO ()
 so n f a at = withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
@@ -134,12 +157,10 @@ so n f a at = withSC3 (do async (d_recv (synthdef "so" (out 0 output)))
                                                   ,control KR "g" 1
                                                   ,control KR "at" at
                                                   ,control KR "rl" 40]
-        synth :: UGen
-        synth = sinOsc AR freq 1
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = (synth * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate att rel
+                 $ sinOsc AR freq 1
 
 sor :: Int -> Double -> Double -> Double -> IO ()
 sor n f a at = withSC3 (do async (d_recv (synthdef "sor" (out 0 output)))
@@ -149,14 +170,11 @@ sor n f a at = withSC3 (do async (d_recv (synthdef "sor" (out 0 output)))
                                                   ,control KR "g" 1
                                                   ,control KR "at" at
                                                   ,control KR "rl" 40]
-        synth :: UGen
-        synth = sinOsc AR freq 1
-        rvrb :: UGen
-        rvrb = freeVerb synth 0.33 0.5 0.5
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = (rvrb * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate att rel
+                 $ fvrbv 0.33 0.5 0.5
+                 $ sinOsc AR freq 1
 
 -- SynthDefs for c1.hs
 
@@ -172,20 +190,13 @@ c1tg n b d r lff hff a rl =
                                                                           ,control KR "a" a
                                                                           ,control KR "rl" rl
                                                                           ,control KR "g" 1]
-        cpos :: UGen
-        cpos = (sinOsc KR 0.03 0) * 0.1
-        synth :: UGen
-        synth = tGrains 1 (impulse AR 4 0) buf rate cpos dur 0.5 0.75 1
-        lf :: UGen
-        lf = lpf synth lowpass
-        hf :: UGen
-        hf = hpf lf highpass
-        gvrb :: UGen
-        gvrb = gVerb hf 15 6 0.5 0.5 20 0 0.7 0.5 300
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR 25 1 rel EnvLin)
-        output :: UGen
-        output = (gvrb * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate 25 rel
+                 $ gvrb 15 6 0.5 0.5 20 0 0.7 0.5 300
+                 $ hf highpass
+                 $ lf lowpass
+                 $ tgrainv buf rate cpos dur 0.75
 
 c1tgl :: Int -> Double -> Double -> IO ()
 c1tgl n b r = 
@@ -194,18 +205,12 @@ c1tgl n b r =
   where [buf, rate, gate] = control_set [control KR "b" b
                                         ,control KR "r" r
                                         ,control KR "g" 1]
-        cpos :: UGen
-        cpos = (sinOsc KR 0.06 0) * 0.1
-        synth :: UGen
-        synth = tGrains 1 (impulse AR 0.15 0) buf rate cpos 7 0.5 1.5 1
-        lf :: UGen
-        lf = lpf synth 1000
-        gvrb :: UGen
-        gvrb = gVerb lf 15 6 0.5 0.5 20 0.2 0.7 0.5 300
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR 10 1 40 EnvLin)
-        output :: UGen
-        output = (gvrb * env) * 1.8
+        output :: UGen                                      
+        output = fout 1.8
+                 $ env gate 10 40
+                 $ gvrb 15 6 0.5 0.5 20 0.2 0.7 0.5 300
+                 $ lf 1000
+                 $ tGrains 1 (impulse AR 0.15 0) buf rate ((sinOsc KR 0.06 0) * 0.1) 7 0.5 1.5 1
 
 c1sio :: Int -> Double -> Double -> Double -> IO ()
 c1sio n f a rl =
@@ -215,12 +220,10 @@ c1sio n f a rl =
                                              ,control KR "a" a
                                              ,control KR "rl" rl
                                              ,control KR "g" 1]
-        synth :: UGen
-        synth = sinOsc AR (mce [freq, freq + 1]) 1
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR 15 1 rel EnvLin)
-        output :: UGen
-        output = (synth * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate 15 rel
+                 $ sinOsc AR (mce [freq, freq + 1]) 1
 
 -- SynthDefs for c2.hs
 
