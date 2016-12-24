@@ -56,6 +56,10 @@ m2h n = 440.0 * (2.0 ** ((n - 69.0) / 12.0))
 h2m :: (Floating a, Integral b, RealFrac a) => a -> b
 h2m f = round (69 + (12 * ((log (f * 0.0022727272727)) / (log 2))))
 
+-- Ternary Operator
+(?) :: Bool -> (t, t) -> t
+a ? (b, c) = if a then b else c
+
 -- SynthDefs
 
 tg :: Int -> Double -> Double -> Double -> Double -> IO ()
@@ -220,6 +224,7 @@ c1sio n f a rl =
 
 -- SynthDefs for c2.hs
 
+c2s1pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c2s1pb n b sp r lff hff a at rl =
   withSC3 (do async (d_recv (synthdef "c2s1pb" (out 0 (output))))
               ;send (s_new "c2s1pb" n AddToTail 1 []))
@@ -242,3 +247,84 @@ c2s1pb n b sp r lff hff a at rl =
         env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
         output :: UGen
         output = (hf * env) * amp
+
+c2s2pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c2s2pb n b sp r lff hff a at rl =
+  withSC3 (do async (d_recv (synthdef "c2s2pb" (out 0 (output))))
+              ;send (s_new "c2s2pb" n AddToTail 1 []))
+  where [buf, spos, rate, lowpass, highpass, amp, att, rel, gate, loop] = control_set [control KR "b" b
+                                                                                      ,control KR "sp" sp
+                                                                                      ,control KR "r" r
+                                                                                      ,control KR "lff" lff
+                                                                                      ,control KR "hff" hff
+                                                                                      ,control KR "a" a
+                                                                                      ,control KR "at" at
+                                                                                      ,control KR "rl" rl
+                                                                                      ,control KR "g" 1
+                                                                                      ,control KR "l" 1]
+        loopLogic :: Loop                                                         
+        loopLogic = (loop == 1) ? (Loop, NoLoop)
+        synth :: UGen
+        synth = playBuf 2 AR buf rate 1 spos loopLogic RemoveSynth
+        vol :: UGen
+        vol = synth * amp
+        lf :: UGen
+        lf = lpf vol lowpass
+        hf :: UGen
+        hf = hpf lf highpass
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+        output :: UGen
+        output = freeVerb (hf * env) 0.5 1 1
+
+c2s2pbm :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c2s2pbm n b sp r lff hff a at rl =
+  withSC3 (do async (d_recv (synthdef "c2s2pbm" (out 0 (output))))
+              ;send (s_new "c2s2pbm" n AddToTail 1 []))
+  where [buf, spos, rate, lowpass, highpass, amp, att, rel, gate] = control_set [control KR "b" b
+                                                                                ,control KR "sp" sp
+                                                                                ,control KR "r" r
+                                                                                ,control KR "lff" lff
+                                                                                ,control KR "hff" hff
+                                                                                ,control KR "a" a
+                                                                                ,control KR "at" at
+                                                                                ,control KR "rl" rl
+                                                                                ,control KR "g" 1]
+        synth :: UGen
+        synth = playBuf 1 AR buf rate 1 spos Loop RemoveSynth
+        vol :: UGen
+        vol = synth * amp
+        lf :: UGen
+        lf = lpf vol lowpass
+        hf :: UGen
+        hf = hpf lf highpass
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+        output :: UGen
+        output = freeVerb (hf * env) 0.5 1 1
+
+c2s2pg :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c2s2pg n b d cp r lff hff a at rl t =
+  withSC3 (do async (d_recv (synthdef "c2s2pg" (out 0 output)))
+              ;send (s_new "c2s2pg" n AddToTail 1 []))
+  where [buf, dur, cpos, rate, lowpass, highpass, amp, att, rel, trig, gate] = control_set [control KR "b" b
+                                                                                           ,control KR "d" d
+                                                                                           ,control KR "cp" cp
+                                                                                           ,control KR "r" r
+                                                                                           ,control KR "lff" lff
+                                                                                           ,control KR "hff" hff
+                                                                                           ,control KR "a" a
+                                                                                           ,control KR "at" at
+                                                                                           ,control KR "rl" rl
+                                                                                           ,control KR "t" t
+                                                                                           ,control KR "g" 1]
+        synth :: UGen
+        synth = tGrains 2 (impulse AR trig 0) buf rate cpos dur 0 amp 1
+        lf :: UGen
+        lf = lpf synth lowpass
+        hf :: UGen
+        hf = hpf lf highpass
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+        output :: UGen
+        output = freeVerb (hf * env) 0.5 1 1
