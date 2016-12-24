@@ -2,6 +2,8 @@
 ** Compositions
 - [[https://github.com/paullucas/hsc3-works/blob/master/c1.hs][c1.hs]] - Unreleased - ([[https://github.com/paullucas/overtone-works/blob/master/src/otworks/c20.clj][c20.clj]] rewrite)
 - [[https://github.com/paullucas/hsc3-works/blob/master/c2.hs][c2.hs]] - Unreleased - ([[https://github.com/paullucas/overtone-works/blob/master/src/otworks/c15.clj][c15.clj]] rewrite)
+** Functions & SynthDefs
+- [[https://github.com/paullucas/hsc3-works/blob/master/functions.hs][functions.hs]]
 ** Misc
 - [[https://github.com/paullucas/hsc3-works/blob/master/m1.hs][m1.hs]]
 - [[https://github.com/paullucas/hsc3-works/blob/master/m2.hs][m2.hs]]
