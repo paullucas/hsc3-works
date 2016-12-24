@@ -5,6 +5,10 @@ import Sound.OSC
 import Data.List
 import Data.Maybe
 
+-- Sample Rate
+samplerate :: Double
+samplerate = 48000
+
 -- Create group 1
 g :: IO ()
 g = withSC3 (send (g_new [(1, AddToTail, 0)]))
@@ -213,3 +217,28 @@ c1sio n f a rl =
         env = envGen KR gate 1 0 1 RemoveSynth (envASR 15 1 rel EnvLin)
         output :: UGen
         output = (synth * env) * amp
+
+-- SynthDefs for c2.hs
+
+c2s1pb n b sp r lff hff a at rl =
+  withSC3 (do async (d_recv (synthdef "c2s1pb" (out 0 (output))))
+              ;send (s_new "c2s1pb" n AddToTail 1 []))
+  where [buf, spos, rate, lowpass, highpass, amp, att, rel, gate] = control_set [control KR "b" b
+                                                                                ,control KR "sp" sp
+                                                                                ,control KR "r" r
+                                                                                ,control KR "lff" lff
+                                                                                ,control KR "hff" hff
+                                                                                ,control KR "a" a
+                                                                                ,control KR "at" at
+                                                                                ,control KR "rl" rl
+                                                                                ,control KR "g" 1]
+        synth :: UGen
+        synth = playBuf 2 AR buf rate 1 spos Loop RemoveSynth
+        lf :: UGen
+        lf = lpf synth lowpass
+        hf :: UGen
+        hf = hpf lf highpass
+        env :: UGen
+        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
+        output :: UGen
+        output = (hf * env) * amp
