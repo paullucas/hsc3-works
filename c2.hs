@@ -2,8 +2,9 @@ import Sound.SC3
 import Sound.OSC
 :l functions.hs
 
-let f = sd "/home/paulll/Producing/october20th-2016/sc8/" $ map (\x -> "s" ++ (show x) ++ ".wav") [0..17]
-sequence_ (map (f !!) [0..17])
+sequence_
+  $ sd "/home/paulll/Producing/october20th-2016/sc8/"
+  $ map (\x -> "s" ++ (show x) ++ ".wav") [0..17]
 
 g
 c2s1pb 2 1 (samplerate / 4) 0.4 1500 150 2 10 1 
