@@ -83,7 +83,7 @@ hf hff input = hpf input hff
 fvrb :: UGen -> UGen
 fvrb input = freeVerb input 0.5 1 1
 
--- fvrbv :: UGen -> UGen
+fvrbv :: UGen -> UGen -> UGen -> UGen -> UGen
 fvrbv m r d input = freeVerb input m r d
 
 gvrb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen
@@ -91,6 +91,9 @@ gvrb rs rt d ibw s dl er tl mrs input = gVerb input rs rt d ibw s dl er tl mrs
 
 fout :: Num a => a -> a -> a
 fout amp input = input * amp
+
+onepole :: UGen -> UGen -> UGen
+onepole coef input = onePole input coef
 
 -- SynthDefs
 
@@ -331,3 +334,23 @@ c2s2pg n b d cp r lff hff a at rl t =
         env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
         output :: UGen
         output = freeVerb (hf * env) 0.5 1 1
+
+-- ocean :: UGen
+-- ocean = onepole 0.7
+--         $ whiteNoise 0.1 AR + dust 100 AR 0.5
+
+-- http://patchstorage.com/the-ocean/
+
+-- // {
+-- // 	x = OnePole.ar(WhiteNoise.ar(0.1)+Dust.ar(100, 0.5), 0.7);
+-- // 	x = x + Splay.ar(FreqShift.ar(x, 1/(4..7)));
+-- // }.play
+
+-- // y = OnePole.ar(
+-- // 	WhiteNoise.ar(0.1) + Dust.ar(100, 0.5)
+-- // , 0.7);
+-- // 
+-- // x = y + 
+-- // Splay.ar(
+-- // 	FreqShift.ar(y, 1/(4..7))
+-- // );
