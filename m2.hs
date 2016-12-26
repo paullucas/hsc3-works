@@ -1,52 +1,28 @@
 :m + Sound.SC3 Sound.OSC
 :l functions.hs
 
--- synthdef + control msg example from docs
 g
-let {[f,a] = control_set [control KR "freq" 440
-                         ,control KR "amp" 0.1]
-    ;g = synthdef "g" (out 0 (sinOsc AR f 0 * a))
-    ;c = do {_ <- async (d_recv g)
-            ;send (s_new "g" 100 AddToTail 1 [])}}
-  in withSC3 c
-c 100 "freq" 430
-c 100 "amp" 0.1
+so 2 (m2h 63) 0.2 25
+c 2 "f" (m2h 65)
+c 2 "f" (m2h 68)
+c 2 "f" (m2h 75)
+c 2 "f" 349.2282314330039
+c 2 "f" 415.3046975799451
+c 2 "f" 622.2539674441618
+c 2 "f" 311.1269837220809
 k
 
--- rewrite synthdef + control msg example from docs
+rb 0 "/home/paulll/Producing/April5th-2016/samples/5.wav"
+
 g
-let {[f, a] = control_set [control KR "freq" 440
-                          ,control KR "amp" 0.2]}
-in withSC3 (do async (d_recv (synthdef "g" (out 0 (sinOsc AR f 0 * a))))
-           ;send (s_new "g" 100 AddToTail 1 []))
-c 100 "freq" 430
-c 100 "amp" 0.1
+tg 3 0 0.8 0.5 25
+c 3 "r" 0.5
+c 3 "r" 0.35
+c 3 "g" 0
 k
 
-
--- create synthdef, play on group 2, kill on group 2
-gx 2
-let {[f, a] = control_set [control KR "freq" 440
-                          ,control KR "amp" 0.2]}
-in withSC3 (do async (d_recv (synthdef "g" (out 0 (sinOsc AR f 0 * a))))
-           ;send (s_new "g" 100 AddToTail 2 []))
-kx 2
-
-
--- Run 2 synths
 g
-
-let {[f, a] = control_set [control KR "freq" 440
-                          ,control KR "amp" 0.2]}
-in withSC3 (do async (d_recv (synthdef "g" (out 0 (sinOsc AR f 0 * a))))
-           ;send (s_new "g" 101 AddToTail 1 []))
-
-let {[f, a] = control_set [control KR "freq" 440
-                          ,control KR "amp" 0.2]}
-in withSC3 (do async (d_recv (synthdef "g" (out 0 (sinOsc AR f 0 * a))))
-           ;send (s_new "g" 100 AddToTail 1 []))
-
-c 100 "freq" 250
-c 101 "freq" 280
-
+so 4 440 0.2 25
+c 4 "f" (m2h 64)
+c 4 "g" 0
 k

@@ -1,5 +1,4 @@
-import Sound.SC3
-import Sound.OSC
+:m + Sound.SC3 Sound.OSC
 :l functions.hs
 
 sequence_ $ sd "/home/paulll/Producing/november4th-2016/chops/smpls-mono/" ["s7m.wav", "s8m.wav"]
