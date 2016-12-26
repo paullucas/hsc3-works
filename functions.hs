@@ -60,7 +60,8 @@ h2m f = round (69 + (12 * ((log (f * 0.0022727272727)) / (log 2))))
 (?) :: Bool -> (t, t) -> t
 a ? (b, c) = if a then b else c
 
--- UGens
+loopLogic :: (Eq a, Num a) => a -> Loop
+loopLogic x = (x == 1) ? (Loop, NoLoop)
 
 tgrain :: UGen -> UGen -> UGen -> UGen -> UGen
 tgrain buf rate cpos dur = tGrains 2 (impulse AR 4 0) buf rate cpos dur 0.5 1 1
@@ -94,8 +95,6 @@ fout amp input = input * amp
 
 onepole :: UGen -> UGen -> UGen
 onepole coef input = onePole input coef
-
--- SynthDefs
 
 tg :: Int -> Double -> Double -> Double -> Double -> IO ()
 tg n b r a at =
@@ -243,16 +242,12 @@ c2s1pb n b sp r lff hff a at rl =
                                                                                 ,control KR "at" at
                                                                                 ,control KR "rl" rl
                                                                                 ,control KR "g" 1]
-        synth :: UGen
-        synth = playBuf 2 AR buf rate 1 spos Loop RemoveSynth
-        lf :: UGen
-        lf = lpf synth lowpass
-        hf :: UGen
-        hf = hpf lf highpass
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = (hf * env) * amp
+        output :: UGen                                      
+        output = fout amp
+                 $ env gate att rel
+                 $ hf highpass
+                 $ lf lowpass
+                 $ playBuf 2 AR buf rate 1 spos Loop RemoveSynth
 
 c2s2pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c2s2pb n b sp r lff hff a at rl =
@@ -268,20 +263,13 @@ c2s2pb n b sp r lff hff a at rl =
                                                                                       ,control KR "rl" rl
                                                                                       ,control KR "g" 1
                                                                                       ,control KR "l" 1]
-        loopLogic :: Loop                                                         
-        loopLogic = (loop == 1) ? (Loop, NoLoop)
-        synth :: UGen
-        synth = playBuf 2 AR buf rate 1 spos loopLogic RemoveSynth
-        vol :: UGen
-        vol = synth * amp
-        lf :: UGen
-        lf = lpf vol lowpass
-        hf :: UGen
-        hf = hpf lf highpass
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = freeVerb (hf * env) 0.5 1 1
+        output :: UGen                                      
+        output = fvrb 
+                 $ env gate att rel
+                 $ hf highpass
+                 $ lf lowpass
+                 $ fout amp
+                 $ playBuf 2 AR buf rate 1 spos (loopLogic loop) RemoveSynth
 
 c2s2pbm :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c2s2pbm n b sp r lff hff a at rl =
@@ -296,18 +284,13 @@ c2s2pbm n b sp r lff hff a at rl =
                                                                                 ,control KR "at" at
                                                                                 ,control KR "rl" rl
                                                                                 ,control KR "g" 1]
-        synth :: UGen
-        synth = playBuf 1 AR buf rate 1 spos Loop RemoveSynth
-        vol :: UGen
-        vol = synth * amp
-        lf :: UGen
-        lf = lpf vol lowpass
-        hf :: UGen
-        hf = hpf lf highpass
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = freeVerb (hf * env) 0.5 1 1
+        output :: UGen                                      
+        output = fvrb 
+                 $ env gate att rel
+                 $ hf highpass
+                 $ lf lowpass
+                 $ fout amp
+                 $ playBuf 1 AR buf rate 1 spos Loop RemoveSynth
 
 c2s2pg :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c2s2pg n b d cp r lff hff a at rl t =
@@ -324,13 +307,9 @@ c2s2pg n b d cp r lff hff a at rl t =
                                                                                            ,control KR "rl" rl
                                                                                            ,control KR "t" t
                                                                                            ,control KR "g" 1]
-        synth :: UGen
-        synth = tGrains 2 (impulse AR trig 0) buf rate cpos dur 0 amp 1
-        lf :: UGen
-        lf = lpf synth lowpass
-        hf :: UGen
-        hf = hpf lf highpass
-        env :: UGen
-        env = envGen KR gate 1 0 1 RemoveSynth (envASR att 1 rel EnvLin)
-        output :: UGen
-        output = freeVerb (hf * env) 0.5 1 1
+        output :: UGen                                      
+        output = fvrb 
+                 $ env gate att rel
+                 $ hf highpass
+                 $ lf lowpass
+                 $ tGrains 2 (impulse AR trig 0) buf rate cpos dur 0 amp 1
