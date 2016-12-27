@@ -4,6 +4,7 @@ import Sound.SC3
 import Sound.OSC
 import Data.List
 import Data.Maybe
+import Data.Tuple.Select
 
 -- Sample Rate
 samplerate :: Double
@@ -28,6 +29,22 @@ k' x = withSC3 (send (n_free [x]))
 -- Send control messages to node
 c :: Int -> String -> Double -> IO ()
 c node key value = withSC3 (send (n_set1 node key value))
+
+-- Send list of control messages to node
+c' :: Int -> [(String, Double)] -> IO ()
+c' node msgList =
+  sequence_
+  $ map (\msg ->
+           withSC3 (send (n_set1 node (fst msg) (snd msg)))
+        ) msgList
+
+-- Send each control message in list to specific node
+c'' :: [(Int, String, Double)] -> IO ()
+c'' msgList =
+  sequence_
+  $ map (\msg ->
+           withSC3 (send (n_set1 (sel1 msg) (sel2 msg) (sel3 msg)))
+        ) msgList
 
 -- Create buffer & load file (fn)
 rb :: Int -> String -> IO (Message)
