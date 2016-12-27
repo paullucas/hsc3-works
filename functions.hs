@@ -184,8 +184,9 @@ sor n f a at =
                                                ,control KR "at" at
                                                ,control KR "rl" 40]
 
-
+--
 -- SynthDefs for c1.hs
+--
 
 c1tg :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c1tg n b d r lff hff a rl =
@@ -231,7 +232,9 @@ c1sio n f a rl =
                                           ,control KR "rl" rl
                                           ,control KR "g" 1]
 
+--
 -- SynthDefs for c2.hs
+--
 
 c2s1pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c2s1pb n b sp r lff hff a at rl =
@@ -315,3 +318,57 @@ c2s2pg n b d cp r lff hff a at rl t =
                                                                                         ,control KR "rl" rl
                                                                                         ,control KR "t" t
                                                                                         ,control KR "g" 1]
+
+--
+-- SynthDefs for c3.hs
+--
+
+c3s2wlf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c3s2wlf n b p a lff fs ws =
+  synthDef n "c3s2wlf"
+  $ amp ampL
+  $ env gate 15 40
+  $ lf lowpass
+  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ptr, ampL, lowpass, fscale, wsize, olaps, gate] = control_set [control KR "b" b
+                                                                        ,control KR "p" p
+                                                                        ,control KR "a" a                  
+                                                                        ,control KR "lff" lff
+                                                                        ,control KR "fs" fs
+                                                                        ,control KR "ws" ws
+                                                                        ,control KR "ol" 1
+                                                                        ,control KR "g" 1]
+
+c3s2whf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c3s2whf n b p a hff fs ws =
+  synthDef n "c3s2whf"
+  $ amp ampL
+  $ env gate 15 40
+  $ hf highpass
+  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ptr, ampL, highpass, fscale, wsize, olaps, gate] = control_set [control KR "b" b
+                                                                         ,control KR "p" p
+                                                                         ,control KR "a" a                  
+                                                                         ,control KR "hff" hff
+                                                                         ,control KR "fs" fs
+                                                                         ,control KR "ws" ws
+                                                                         ,control KR "ol" 1
+                                                                         ,control KR "g" 1]
+
+c3s2wr :: Int -> Double -> Double -> Double -> Double -> Double -> IO ()
+c3s2wr n b p a fs ws =
+  synthDef n "c3s2wr"
+  $ amp ampL
+  $ env gate 15 40
+  $ fvrb' 1 1 1
+  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ptr, ampL, fscale, wsize, olaps, gate] = control_set [control KR "b" b
+                                                               ,control KR "p" p
+                                                               ,control KR "a" a
+                                                               ,control KR "fs" fs
+                                                               ,control KR "ws" ws
+                                                               ,control KR "ol" 1
+                                                               ,control KR "g" 1]
