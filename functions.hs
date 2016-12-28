@@ -38,14 +38,6 @@ c' node msgList =
            withSC3 (send (n_set1 node (fst msg) (snd msg)))
         ) msgList
 
--- Send each control message in list to specific node
-c'' :: [(Int, String, Double)] -> IO ()
-c'' msgList =
-  sequence_
-  $ map (\msg ->
-           withSC3 (send (n_set1 (sel1 msg) (sel2 msg) (sel3 msg)))
-        ) msgList
-
 -- Create buffer & load file (fn)
 rb :: Int -> String -> IO (Message)
 rb bufferNumber fileName =
