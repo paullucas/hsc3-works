@@ -4,6 +4,8 @@ import Sound.SC3
 import Sound.OSC
 import Data.List
 import Data.Maybe
+import System.Environment
+import Control.Monad.IO.Class
 
 -- Sample Rate
 samplerate :: Double
@@ -43,12 +45,28 @@ rb bufferNumber fileName =
   withSC3 (do
     async (b_allocRead bufferNumber fileName 0 0))
 
+-- Concatenate home dir to file path (will eventually be used in sd)
+hd :: [Char] -> [Char] -> IO [Char]
+hd dirName fileName = do
+  homeDir <- getEnv "HOME"
+  ;return $ homeDir ++ dirName ++ fileName
+
 -- Load samples in directory
 sd :: [Char] -> [[Char]] -> [IO Message]
 sd dirName fileList =
   map (\file ->
-         withSC3 (do async (b_allocRead (fromJust (findIndex (file ==) fileList)) (dirName ++ file) 0 0))
+         withSC3 (do async (b_allocRead
+                            (fromJust (findIndex (file ==) fileList))
+                            (dirName ++ file)
+                            0 0)
+                 )
       ) fileList
+
+-- Query a buffer
+bq :: Int -> IO ()
+bq n = withSC3 (do send (b_query [n])
+                   ;r <- waitReply "/b_info"
+                   ;liftIO (print r))
 
 -- Convert midi note number to hz
 m2h :: Floating a => a -> a
