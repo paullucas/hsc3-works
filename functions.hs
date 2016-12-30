@@ -31,9 +31,16 @@ k' x = withSC3 (send (n_free [x]))
 c :: Int -> String -> Double -> IO ()
 c node key value = withSC3 (send (n_set1 node key value))
 
+-- Send 2 control messages to node
+c' :: Int -> String -> Double -> String -> Double -> IO ()
+c' node k1 v1 k2 v2 =
+  withSC3 $ do
+  send (n_set1 node k1 v1)
+  ;send (n_set1 node k2 v2)
+
 -- Send list of control messages to node
-c' :: Int -> [(String, Double)] -> IO ()
-c' node msgList =
+c'' :: Int -> [(String, Double)] -> IO ()
+c'' node msgList =
   sequence_
   $ map (\msg ->
            withSC3 (send (n_set1 node (fst msg) (snd msg)))
@@ -75,6 +82,14 @@ m2h note = 440.0 * (2.0 ** ((note - 69.0) / 12.0))
 -- Convert hz to midi note number
 h2m :: (Floating a, Integral b, RealFrac a) => a -> b
 h2m freq = round (69 + (12 * ((log (freq * 0.0022727272727)) / (log 2))))
+
+-- Convert amplitude to decibels
+a2d :: Floating a => a -> a
+a2d amp = 20 * logBase 10 amp
+
+-- Convert decibels to amplitude
+d2a :: Floating r => r -> r
+d2a db = exp $ log 10 * db / 20
 
 -- Ternary Operator
 (?) :: Bool -> (t, t) -> t
@@ -122,11 +137,11 @@ env gate attack release input =
 
 tgrain :: UGen -> UGen -> UGen -> UGen -> UGen
 tgrain bufNum rate centerPos duration =
-  tGrains 2 (impulse AR 4 0) bufNum rate centerPos duration 0.5 1 1
+  tGrains 1 (impulse AR 4 0) bufNum rate centerPos duration 0.5 1 1
 
 tgrain' :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen
 tgrain' bufNum rate centerPos duration ampLevel =
-  tGrains 2 (impulse AR 4 0) bufNum rate centerPos duration 0.5 ampLevel 1
+  tGrains 1 (impulse AR 4 0) bufNum rate centerPos duration 0.5 ampLevel 1
 
 gvrb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen
 gvrb roomSize revTime damping inputbw spread dryLevel earlyRefLevel tailLevel maxRoomSize input =
@@ -233,18 +248,20 @@ c1tg n b d r lff hff a rl =
                                                                        ,control KR "rl" rl
                                                                        ,control KR "g" 1]
 
-c1tgl :: Int -> Double -> Double -> IO ()
-c1tgl n b r =
+c1tgl :: Int -> Double -> Double -> Double -> IO ()
+c1tgl n b r a =
   synthDef n "c1tgl"
-  $ amp 1.8
+  $ amp ampL
   $ env gate 10 40
+  $ hf 50
   $ gvrb 15 6 0.5 0.5 20 0.2 0.7 0.5 300
   $ lf 1000
-  $ tGrains 1 (impulse AR 0.15 0) buf rate ((sinOsc KR 0.06 0) * 0.1) 7 0.5 1.5 1
+  $ tGrains 1 (impulse AR 0.15 0) buf rate ((sinOsc KR 0.06 0) * 0.1) 7 0.5 1 1
   where
-    [buf, rate, gate] = control_set [control KR "b" b
-                                    ,control KR "r" r
-                                    ,control KR "g" 1]
+    [buf, rate, gate, ampL] = control_set [control KR "b" b
+                                          ,control KR "r" r
+                                          ,control KR "g" 1
+                                          ,control KR "a" a]
 
 c1sio :: Int -> Double -> Double -> Double -> IO ()
 c1sio n f a rl =
