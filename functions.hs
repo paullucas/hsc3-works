@@ -4,7 +4,6 @@ import Sound.SC3
 import Sound.OSC
 import Data.List
 import Data.Maybe
-import Data.Tuple.Select
 
 -- Sample Rate
 samplerate :: Double
