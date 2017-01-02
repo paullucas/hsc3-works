@@ -146,11 +146,11 @@ env gate attack release input =
 
 tgrain :: UGen -> UGen -> UGen -> UGen -> UGen
 tgrain bufNum rate centerPos duration =
-  tGrains 1 (impulse AR 4 0) bufNum rate centerPos duration 0.5 1 1
+  tGrains 2 (impulse AR 4 0) bufNum rate centerPos duration 0 1 1
 
 tgrain' :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen
 tgrain' bufNum rate centerPos duration ampLevel =
-  tGrains 1 (impulse AR 4 0) bufNum rate centerPos duration 0.5 ampLevel 1
+  tGrains 2 (impulse AR 4 0) bufNum rate centerPos duration 0 ampLevel 1
 
 gvrb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen
 gvrb roomSize revTime damping inputbw spread dryLevel earlyRefLevel tailLevel maxRoomSize input =
@@ -190,6 +190,27 @@ tgr n b r a at =
                                                          ,control KR "g" 1
                                                          ,control KR "at" at
                                                          ,control KR "rl" 40]
+
+tgrf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+tgrf n b r lff hff a at =
+  synthDef n "tgrf"
+  $ amp ampL
+  $ env gate att rel
+  $ fvrb
+  $ hf highpass
+  $ lf lowpass
+  $ tgrain buf rate cpos dur
+  where
+    [buf, rate, lowpass, highpass, ampL, dur, gate, att, rel] = control_set [control KR "b" b
+                                                                   ,control KR "r" r
+                                                                   ,control KR "lff" lff
+                                                                   ,control KR "hff" hff
+                                                                   ,control KR "a" a
+                                                                   ,control KR "d" 5
+                                                                   ,control KR "g" 1
+                                                                   ,control KR "at" at
+                                                                   ,control KR "rl" 40]
+
 
 tgg :: Int -> Double -> Double -> Double -> Double -> IO ()
 tgg n b r a at =
