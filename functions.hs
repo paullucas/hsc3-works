@@ -202,14 +202,14 @@ tgrf n b r lff hff a at =
   $ tgrain buf rate cpos dur
   where
     [buf, rate, lowpass, highpass, ampL, dur, gate, att, rel] = control_set [control KR "b" b
-                                                                   ,control KR "r" r
-                                                                   ,control KR "lff" lff
-                                                                   ,control KR "hff" hff
-                                                                   ,control KR "a" a
-                                                                   ,control KR "d" 5
-                                                                   ,control KR "g" 1
-                                                                   ,control KR "at" at
-                                                                   ,control KR "rl" 40]
+                                                                            ,control KR "r" r
+                                                                            ,control KR "lff" lff
+                                                                            ,control KR "hff" hff
+                                                                            ,control KR "a" a
+                                                                            ,control KR "d" 5
+                                                                            ,control KR "g" 1
+                                                                            ,control KR "at" at
+                                                                            ,control KR "rl" 40]
 
 
 tgg :: Int -> Double -> Double -> Double -> Double -> IO ()
