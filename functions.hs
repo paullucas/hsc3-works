@@ -109,11 +109,10 @@ synthDef node name input =
   withSC3 (do async (d_recv (synthdef name (out 0 input)))
               ;send (s_new name node AddToTail 1 []))
 
--- mbus node =
---   withSC3 (do async (d_recv (synthdef "mb" input))
---               ;send (s_new "mb" node AddToTail 1 []))
---   where
---     input = replaceOut 0 $ lmtr $ in' 2 AR 0
+mbus :: Int -> IO ()
+mbus node =
+  withSC3 (do async (d_recv (synthdef "mbus" (out 0 $ lmtr $ in' 2 AR 16)))
+              ;send (s_new "mbus" node AddToHead 1 []))
 
 --
 -- UGen Abstractions
