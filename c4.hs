@@ -5,7 +5,7 @@ sequence_
   $ sd "/home/paulll/Producing/jan2nd-2017/smp/"
   $ map (\x -> "s" ++ (show x) ++ "m.wav") [0..8]
 
-g
+i
 tgr 3 1 0.67 1 15
 tgrf 4 3 800 2000 400 1 10
 c 4 "r" 0.8

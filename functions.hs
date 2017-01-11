@@ -13,23 +13,25 @@ samplerate = 48000
 
 -- Create group 1
 g :: IO ()
-g = withSC3 (send (g_new [(1, AddToTail, 0)]))
+g = withSC3 $ send $ g_new [(1, AddToTail, 0)]
 
--- Kill group 1
+-- Kill group 1 & 2
 k :: IO ()
-k = withSC3 (send (n_free [1]))
+k = withSC3 $ do
+  send $ n_free [1]
+  ;send $ n_free [2]
 
 -- Create group x
 g' :: Int -> IO ()
-g' x = withSC3 (send (g_new [(x, AddToTail, 0)]))
+g' x = withSC3 $ send $ g_new [(x, AddToTail, 0)]
 
 -- Kill group x
 k' :: Int -> IO ()
-k' x = withSC3 (send (n_free [x]))
+k' x = withSC3 $ send $ n_free [x]
 
 -- Send control messages to node
 c :: Int -> String -> Double -> IO ()
-c node key value = withSC3 (send (n_set1 node key value))
+c node key value = withSC3 $ send $ n_set1 node key value
 
 -- Send 2 control messages to node
 c' :: Int -> String -> Double -> String -> Double -> IO ()
@@ -43,14 +45,14 @@ c'' :: Int -> [(String, Double)] -> IO ()
 c'' node msgList =
   sequence_
   $ map (\msg ->
-           withSC3 (send (n_set1 node (fst msg) (snd msg)))
+           withSC3 $ send $ n_set1 node (fst msg) (snd msg)
         ) msgList
 
 -- Create buffer & load file (fn)
 rb :: Int -> String -> IO (Message)
 rb bufferNumber fileName =
-  withSC3 (do
-    async (b_allocRead bufferNumber fileName 0 0))
+  withSC3 $ do
+  async $ b_allocRead bufferNumber fileName 0 0
 
 -- Concatenate home dir to file path (will eventually be used in sd)
 hd :: [Char] -> [Char] -> IO [Char]
@@ -63,7 +65,7 @@ sd :: [Char] -> [[Char]] -> [IO Message]
 sd dirName fileList =
   map (\file ->
          withSC3 (do async (b_allocRead
-                            (fromJust (findIndex (file ==) fileList))
+                            (fromJust $ findIndex (file ==) fileList)
                             (dirName ++ file)
                             0 0)
                  )
@@ -71,9 +73,10 @@ sd dirName fileList =
 
 -- Query a buffer
 bq :: Int -> IO ()
-bq n = withSC3 (do send (b_query [n])
-                   ;r <- waitReply "/b_info"
-                   ;liftIO (print r))
+bq n = withSC3 $ do
+  send $ b_query [n]
+  ;r <- waitReply "/b_info"
+  ;liftIO $ print r
 
 -- Convert midi note number to hz
 m2h :: Floating a => a -> a
@@ -106,13 +109,21 @@ amp ampLevel input = input * ampLevel
 -- Create & initialize synthdef
 synthDef :: Int -> String -> UGen -> IO ()
 synthDef node name input =
-  withSC3 (do async (d_recv (synthdef name (out 0 input)))
-              ;send (s_new name node AddToTail 1 []))
+  withSC3 $ do async $ d_recv $ synthdef name $ out 0 input
+               ;send $ s_new name node AddToTail 2 []
+              -- ;send $ s_new name (-1) AddToTail 2 []
 
-mbus :: Int -> IO ()
-mbus node =
-  withSC3 (do async (d_recv (synthdef "mbus" (out 0 $ lmtr $ in' 2 AR 16)))
-              ;send (s_new "mbus" node AddToHead 1 []))
+-- Master bus limiter
+mbus :: Synthdef
+mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ in' 1 AR 0
+
+-- Initialize master bus limiter
+i :: IO ()
+i = withSC3 $ do
+  send $ g_new [(1, AddToTail, 0)]
+  ;send $ g_new [(2, AddToTail, 0)]
+  ;async $ d_recv mbus
+  ;send $ s_new "mbus" (-1) AddToTail 1 []
 
 --
 -- UGen Abstractions
@@ -141,7 +152,7 @@ fvrb' mix room damp input = freeVerb input mix room damp
 
 env :: UGen -> UGen -> UGen -> UGen -> UGen
 env gate attack release input =
-  input * envGen KR gate 1 0 1 RemoveSynth (envASR attack 1 release EnvLin)
+  input * envGen KR gate 1 0 1 RemoveSynth $ envASR attack 1 release EnvLin
 
 tgrain :: UGen -> UGen -> UGen -> UGen -> UGen
 tgrain bufNum rate centerPos duration =
