@@ -115,7 +115,7 @@ synthDef node name input =
 
 -- Master bus limiter
 mbus :: Synthdef
-mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ in' 1 AR 0
+mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ in' 2 AR 0
 
 -- Initialize master bus limiter
 i :: IO ()
