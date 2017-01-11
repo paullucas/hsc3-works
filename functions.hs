@@ -115,7 +115,7 @@ synthDef node name input =
 
 -- Master bus limiter
 mbus :: Synthdef
-mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ in' 2 AR 0
+mbus = synthdef "mbus" $ replaceOut 0 $ lmtr (0.8 * in' 2 AR 0)
 
 -- Initialize master bus limiter
 i :: IO ()
@@ -152,7 +152,7 @@ fvrb' mix room damp input = freeVerb input mix room damp
 
 env :: UGen -> UGen -> UGen -> UGen -> UGen
 env gate attack release input =
-  input * envGen KR gate 1 0 1 RemoveSynth $ envASR attack 1 release EnvLin
+  input * envGen KR gate 1 0 1 RemoveSynth (envASR attack 1 release EnvLin)
 
 tgrain :: UGen -> UGen -> UGen -> UGen -> UGen
 tgrain bufNum rate centerPos duration =
