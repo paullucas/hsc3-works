@@ -115,7 +115,7 @@ synthDef node name input =
 
 -- Master bus limiter
 mbus :: Synthdef
-mbus = synthdef "mbus" $ replaceOut 0 $ lmtr (0.8 * in' 2 AR 0)
+mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ hf 40 $ in' 2 AR 0
 
 -- Initialize master bus limiter
 i :: IO ()
@@ -130,7 +130,9 @@ i = withSC3 $ do
 --
 
 lmtr :: UGen -> UGen
-lmtr input = limiter input 0.99 0.001
+lmtr input = limiter input 0.8 0.001
+-- lmtr input = limiter input 0.95 0.001
+-- lmtr input = limiter input 0.99 0.001
 
 cpos :: UGen
 cpos = 0.1 * sinOsc KR 0.03 0
@@ -455,3 +457,59 @@ c3s2wr n b p a fs ws =
                                                                ,control KR "ws" ws
                                                                ,control KR "ol" 1
                                                                ,control KR "g" 1]
+
+--
+-- SynthDefs for c4.hs
+--
+
+c4tgr :: Int -> Double -> Double -> Double -> Double -> IO ()
+c4tgr n b r a at =
+  synthDef n "c4tgr"
+  $ amp ampL
+  $ env gate att rel
+  $ lmtr
+  $ fvrb
+  $ hf 40
+  $ tgrain buf rate cpos dur
+  where
+    [buf, rate, ampL, dur, gate, att, rel] = control_set [control KR "b" b
+                                                         ,control KR "r" r
+                                                         ,control KR "a" a
+                                                         ,control KR "d" 5
+                                                         ,control KR "g" 1
+                                                         ,control KR "at" at
+                                                         ,control KR "rl" 40]
+
+c4tgrf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c4tgrf n b r lff hff a at =
+  synthDef n "c4tgrf"
+  $ amp ampL
+  $ env gate att rel
+  $ lmtr
+  $ fvrb
+  $ hf highpass
+  $ lf lowpass
+  $ tgrain buf rate cpos dur
+  where
+    [buf, rate, lowpass, highpass, ampL, dur, gate, att, rel] = control_set [control KR "b" b
+                                                                            ,control KR "r" r
+                                                                            ,control KR "lff" lff
+                                                                            ,control KR "hff" hff
+                                                                            ,control KR "a" a
+                                                                            ,control KR "d" 5
+                                                                            ,control KR "g" 1
+                                                                            ,control KR "at" at
+                                                                            ,control KR "rl" 40]
+
+c4sio :: Int -> Double -> Double -> Double -> IO ()
+c4sio n f a rl =
+  synthDef n "c4sio"
+  $ amp ampL
+  $ env gate 15 rel
+  $ lmtr
+  $ sinOsc AR (mce [freq, freq + 1]) 1
+  where
+    [freq, ampL, rel, gate] = control_set [control KR "f" f
+                                          ,control KR "a" a
+                                          ,control KR "rl" rl
+                                          ,control KR "g" 1]
