@@ -513,3 +513,26 @@ c4sio n f a rl =
                                           ,control KR "a" a
                                           ,control KR "rl" rl
                                           ,control KR "g" 1]
+--
+-- SynthDefs for c2.hs
+--
+
+c5wr :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c5wr n b p a fs ws lff hff =
+  synthDef n "c5wr"
+  $ amp ampL
+  $ env gate 15 40
+  $ fvrb' 1 1 1
+  $ hf highpass
+  $ lf lowpass
+  $ warp1 2 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ptr, ampL, fscale, wsize, lowpass, highpass, olaps, gate] = control_set [control KR "b" b
+                                                                                  ,control KR "p" p
+                                                                                  ,control KR "a" a
+                                                                                  ,control KR "fs" fs
+                                                                                  ,control KR "ws" ws
+                                                                                  ,control KR "lff" lff
+                                                                                  ,control KR "hff" hff
+                                                                                  ,control KR "ol" 1
+                                                                                  ,control KR "g" 1]
