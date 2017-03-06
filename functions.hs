@@ -517,7 +517,7 @@ c4sio n f a rl =
                                           ,control KR "rl" rl
                                           ,control KR "g" 1]
 --
--- SynthDefs for c2.hs
+-- SynthDefs for c5.hs
 --
 
 c5wr :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
@@ -540,26 +540,7 @@ c5wr n b p a fs ws lff hff =
                                                                                   ,control KR "ol" 1
                                                                                   ,control KR "g" 1]
 
-c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c5pb n b sp r lff hff a at rl =
-  synthDef n "c5pb"
-  $ pan
-  $ amp ampL
-  $ env gate att rel
-  $ hf highpass
-  $ lf lowpass
-  $ playBuf 1 AR buf rate 1 spos Loop RemoveSynth
-  where
-    [buf, spos, rate, lowpass, highpass, ampL, att, rel, gate] = control_set [control KR "b" b
-                                                                             ,control KR "sp" sp
-                                                                             ,control KR "r" r
-                                                                             ,control KR "lff" lff
-                                                                             ,control KR "hff" hff
-                                                                             ,control KR "a" a
-                                                                             ,control KR "at" at
-                                                                             ,control KR "rl" rl
-                                                                             ,control KR "g" 1]
-
+c5wm :: Int -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5wm n b a fs lff hff =
   let
     ptr = mouseX KR 0 1 Linear 0.2
@@ -580,3 +561,23 @@ c5wm n b a fs lff hff =
                                                                       ,control KR "hff" hff
                                                                       ,control KR "ol" 1
                                                                       ,control KR "g" 1]
+
+c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c5pb n b sp r lff hff a at rl =
+  synthDef n "c5pb"
+  $ pan
+  $ amp ampL
+  $ env gate att rel
+  $ hf highpass
+  $ lf lowpass
+  $ playBuf 1 AR buf rate 1 spos Loop RemoveSynth
+  where
+    [buf, spos, rate, lowpass, highpass, ampL, att, rel, gate] = control_set [control KR "b" b
+                                                                             ,control KR "sp" sp
+                                                                             ,control KR "r" r
+                                                                             ,control KR "lff" lff
+                                                                             ,control KR "hff" hff
+                                                                             ,control KR "a" a
+                                                                             ,control KR "at" at
+                                                                             ,control KR "rl" rl
+                                                                             ,control KR "g" 1]
