@@ -15,11 +15,9 @@ samplerate = 48000
 g :: IO ()
 g = withSC3 $ send $ g_new [(1, AddToTail, 0)]
 
--- Kill group 1 & 2
+-- Kill group 1
 k :: IO ()
-k = withSC3 $ do
-  send $ n_free [1]
-  ;send $ n_free [2]
+k = withSC3 $ send $ n_free [1]
 
 -- Create group x
 g' :: Int -> IO ()
@@ -110,20 +108,19 @@ amp ampLevel input = input * ampLevel
 synthDef :: Int -> String -> UGen -> IO ()
 synthDef node name input =
   withSC3 $ do async $ d_recv $ synthdef name $ out 0 input
-               ;send $ s_new name node AddToTail 2 []
-              -- ;send $ s_new name (-1) AddToTail 2 []
+               ;send $ s_new name node AddToTail 1 []
 
--- Master bus limiter
-mbus :: Synthdef
-mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ hf 40 $ in' 2 AR 0
+-- -- Master bus limiter
+-- mbus :: Synthdef
+-- mbus = synthdef "mbus" $ replaceOut 0 $ lmtr $ hf 40 $ in' 2 AR 0
 
--- Initialize master bus limiter
-i :: IO ()
-i = withSC3 $ do
-  send $ g_new [(1, AddToTail, 0)]
-  ;send $ g_new [(2, AddToTail, 0)]
-  ;async $ d_recv mbus
-  ;send $ s_new "mbus" (-1) AddToTail 1 []
+-- -- Initialize master bus limiter
+-- i :: IO ()
+-- i = withSC3 $ do
+--   send $ g_new [(1, AddToTail, 0)]
+--   ;send $ g_new [(2, AddToTail, 0)]
+--   ;async $ d_recv mbus
+--   ;send $ s_new "mbus" (-1) AddToTail 1 []
 
 --
 -- UGen Abstractions
@@ -168,6 +165,12 @@ gvrb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> 
 gvrb roomSize revTime damping inputbw spread dryLevel earlyRefLevel tailLevel maxRoomSize input =
   gVerb input roomSize revTime damping inputbw spread dryLevel earlyRefLevel tailLevel maxRoomSize
 
+pan :: UGen -> UGen
+pan input = pan2 input 0 1
+
+mX = mouseX KR 0 1 Linear 0.2
+
+mY = mouseY KR 0 1 Linear 0.2
 --
 -- SynthDefs
 --
@@ -536,3 +539,44 @@ c5wr n b p a fs ws lff hff =
                                                                                   ,control KR "hff" hff
                                                                                   ,control KR "ol" 1
                                                                                   ,control KR "g" 1]
+
+c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c5pb n b sp r lff hff a at rl =
+  synthDef n "c5pb"
+  $ pan
+  $ amp ampL
+  $ env gate att rel
+  $ hf highpass
+  $ lf lowpass
+  $ playBuf 1 AR buf rate 1 spos Loop RemoveSynth
+  where
+    [buf, spos, rate, lowpass, highpass, ampL, att, rel, gate] = control_set [control KR "b" b
+                                                                             ,control KR "sp" sp
+                                                                             ,control KR "r" r
+                                                                             ,control KR "lff" lff
+                                                                             ,control KR "hff" hff
+                                                                             ,control KR "a" a
+                                                                             ,control KR "at" at
+                                                                             ,control KR "rl" rl
+                                                                             ,control KR "g" 1]
+
+c5wm n b a fs lff hff =
+  let
+    ptr = mouseX KR 0 1 Linear 0.2
+    wsize = mouseY KR 0.05 6 Linear 0.2
+  in
+  synthDef n "c5wm"
+  $ pan
+  $ amp ampL
+  $ env gate 15 40
+  $ hf highpass
+  $ lf lowpass
+  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ampL, fscale, lowpass, highpass, olaps, gate] = control_set [control KR "b" b
+                                                                      ,control KR "a" a
+                                                                      ,control KR "fs" fs
+                                                                      ,control KR "lff" lff
+                                                                      ,control KR "hff" hff
+                                                                      ,control KR "ol" 1
+                                                                      ,control KR "g" 1]
