@@ -2,6 +2,10 @@
 :l functions.hs
 
 sequence_
+  $ sd "/Users/paul/Producing/december30th-2016/"
+  $ map (\x -> "s" ++ (show x) ++ ".wav") [0..4]
+
+sequence_
   $ sd "/home/paulll/Producing/december30th-2016/"
   $ map (\x -> "s" ++ (show x) ++ ".wav") [0..4]
 

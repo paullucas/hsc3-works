@@ -5,6 +5,10 @@ sequence_
   $ sd "/Users/paul/Producing/feb28-2017/f/"
   $ map (\x -> (show x) ++ "mf.wav") [1..4]
 
+sequence_
+  $ sd "/home/paulll/Producing/feb28-2017/f/"
+  $ map (\x -> (show x) ++ "mf.wav") [1..4]
+
 g
 c5wr 2 0 0.4 4 0.6 0.8 2000 60
 c' 2 "p" 0.7 "ws" 0.2
@@ -43,6 +47,9 @@ c5wm 3 0 4 8 2000 60
 c 3 "fs" 44
 c 3 "fs" 47
 c 3 "fs" 50
+c 3 "fs" 57
+c 3 "fs" 52.5
+c 3 "fs" 54
 c 2 "g" 0
 c 3 "g" 0
 k

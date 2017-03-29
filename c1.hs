@@ -1,7 +1,13 @@
 :m + Sound.SC3 Sound.OSC
 :l functions.hs
 
-sequence_ $ sd "/home/paulll/Producing/november4th-2016/chops/smpls-mono/" ["s7m.wav", "s8m.wav"]
+sequence_
+  $ sd "/Users/paul/Producing/november4th-2016/chops/smpls-mono/"
+  ["s7m.wav", "s8m.wav"]
+
+sequence_
+  $ sd "/home/paulll/Producing/november4th-2016/chops/smpls-mono/"
+  ["s7m.wav", "s8m.wav"]
 
 g
 c1tg 2 1 5 0.6 2000 125 0.5 40
