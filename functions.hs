@@ -562,6 +562,28 @@ c5wm n b a fs lff hff =
                                                                       ,control KR "ol" 1
                                                                       ,control KR "g" 1]
 
+c5wm' :: Int -> Double -> Double -> Double -> Double -> Double -> UGen -> UGen -> UGen -> UGen -> IO ()
+c5wm' n b a fs lff hff xMin xMax yMin yMax =
+  let
+    ptr = mouseX KR xMin xMax Linear 0.2
+    wsize = mouseY KR yMin yMax Linear 0.2
+  in
+  synthDef n "c5wm"
+  $ pan
+  $ amp ampL
+  $ env gate 15 40
+  $ hf highpass
+  $ lf lowpass
+  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ampL, fscale, lowpass, highpass, olaps, gate] = control_set [control KR "b" b
+                                                                      ,control KR "a" a
+                                                                      ,control KR "fs" fs
+                                                                      ,control KR "lff" lff
+                                                                      ,control KR "hff" hff
+                                                                      ,control KR "ol" 1
+                                                                      ,control KR "g" 1]
+
 c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5pb n b sp r lff hff a at rl =
   synthDef n "c5pb"
