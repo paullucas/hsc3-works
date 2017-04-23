@@ -603,3 +603,28 @@ c5pb n b sp r lff hff a at rl =
                                                                              ,control KR "at" at
                                                                              ,control KR "rl" rl
                                                                              ,control KR "g" 1]
+
+--
+-- SynthDefs for c6.hs
+--
+
+c6w :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
+c6w n b p a fs ws lff hff at rl =
+  synthDef n "c6w"
+  $ amp ampL
+  $ env gate att rel
+  $ hf highpass
+  $ lf lowpass
+  $ warp1 2 buf ptr fscale wsize (-1) olaps 0.0 4
+  where
+    [buf, ptr, ampL, fscale, wsize, lowpass, highpass, att, rel, olaps, gate] = control_set [control KR "b" b
+                                                                                            ,control KR "p" p
+                                                                                            ,control KR "a" a
+                                                                                            ,control KR "fs" fs
+                                                                                            ,control KR "ws" ws
+                                                                                            ,control KR "lff" lff
+                                                                                            ,control KR "hff" hff
+                                                                                            ,control KR "at" at
+                                                                                            ,control KR "rl" rl
+                                                                                            ,control KR "ol" 1
+                                                                                            ,control KR "g" 1]
