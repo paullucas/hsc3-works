@@ -15,17 +15,17 @@ samplerate = 48000
 g :: IO ()
 g = withSC3 $ send $ g_new [(1, AddToTail, 0)]
 
--- Kill group 1
-k :: IO ()
-k = withSC3 $ send $ n_free [1]
+-- Free group 1
+f :: IO ()
+f = withSC3 $ send $ n_free [1]
 
 -- Create group x
 g' :: Int -> IO ()
 g' x = withSC3 $ send $ g_new [(x, AddToTail, 0)]
 
--- Kill group x
-k' :: Int -> IO ()
-k' x = withSC3 $ send $ n_free [x]
+-- Free group x
+f' :: Int -> IO ()
+f' x = withSC3 $ send $ n_free [x]
 
 -- Send control messages to node
 c :: Int -> String -> Double -> IO ()
@@ -104,10 +104,6 @@ loopLogic x = (x == 1) ? (Loop, NoLoop)
 amp :: Num a => a -> a -> a
 amp ampLevel input = input * ampLevel
 
--- Control KR
-ck :: String -> Double -> UGen
-ck key value = control KR key value
-
 -- Create & initialize synthdef
 synthDef :: Int -> String -> UGen -> IO ()
 synthDef node name input =
@@ -163,6 +159,9 @@ recStop = withSC3
 --
 -- UGen Abstractions
 --
+
+k :: String -> Double -> UGen
+k key value = control KR key value
 
 lmtr :: UGen -> UGen
 lmtr input = limiter input 0.8 0.001
@@ -513,13 +512,13 @@ c4tgr n b r a at =
   $ hf 40
   $ tgrain buffer rate cpos duration
   where
-    buffer       = ck "b" b
-    rate         = ck "r" r
-    ampLevel     = ck "a" a
-    duration     = ck "d" 5
-    gate         = ck "g" 1
-    attack       = ck "at" at
-    release      = ck "rl" 40
+    buffer       = k "b" b
+    rate         = k "r" r
+    ampLevel     = k "a" a
+    duration     = k "d" 5
+    gate         = k "g" 1
+    attack       = k "at" at
+    release      = k "rl" 40
 
 c4tgrf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c4tgrf n b r lff hff a at =
@@ -532,15 +531,15 @@ c4tgrf n b r lff hff a at =
   $ lf lowpassFreq
   $ tgrain buffer rate cpos duration
   where
-    buffer       = ck "b" b
-    rate         = ck "r" r
-    lowpassFreq  = ck "lff" lff
-    highpassFreq = ck "hff" hff
-    ampLevel     = ck "a" a
-    duration     = ck "d" 5
-    gate         = ck "g" 1
-    attack       = ck "at" at
-    release      = ck "rl" 40
+    buffer       = k "b" b
+    rate         = k "r" r
+    lowpassFreq  = k "lff" lff
+    highpassFreq = k "hff" hff
+    ampLevel     = k "a" a
+    duration     = k "d" 5
+    gate         = k "g" 1
+    attack       = k "at" at
+    release      = k "rl" 40
 
 c4sio :: Int -> Double -> Double -> Double -> IO ()
 c4sio n f a rl =
@@ -550,10 +549,10 @@ c4sio n f a rl =
   $ lmtr
   $ sinOsc AR (mce [freq, freq + 1]) 1
   where
-    freq     = ck "f" f
-    ampLevel = ck "a" a
-    release  = ck "rl" rl
-    gate     = ck "g" 1
+    freq     = k "f" f
+    ampLevel = k "a" a
+    release  = k "rl" rl
+    gate     = k "g" 1
 
 --
 -- SynthDefs for c5.hs
@@ -569,15 +568,15 @@ c5wr n b p a fs ws lff hff =
   $ lf lowpassFreq
   $ warp1 2 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    buffer       = ck "b" b
-    pointer      = ck "p" p
-    ampLevel     = ck "a" a
-    freqScale    = ck "fs" fs
-    windowSize   = ck "ws" ws
-    lowpassFreq  = ck "lff" lff
-    highpassFreq = ck "hff" hff
-    overlaps     = ck "ol" 1
-    gate         = ck "g" 1
+    buffer       = k "b" b
+    pointer      = k "p" p
+    ampLevel     = k "a" a
+    freqScale    = k "fs" fs
+    windowSize   = k "ws" ws
+    lowpassFreq  = k "lff" lff
+    highpassFreq = k "hff" hff
+    overlaps     = k "ol" 1
+    gate         = k "g" 1
 
 c5wm :: Int -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5wm n b a fs lff hff =
@@ -593,13 +592,13 @@ c5wm n b a fs lff hff =
     $ lf lowpassFreq
     $ warp1 1 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    buffer       = ck "b" b
-    ampLevel     = ck "a" a
-    freqScale    = ck "fs" fs
-    lowpassFreq  = ck "lff" lff
-    highpassFreq = ck "hff" hff
-    overlaps     = ck "ol" 1
-    gate         = ck "g" 1
+    buffer       = k "b" b
+    ampLevel     = k "a" a
+    freqScale    = k "fs" fs
+    lowpassFreq  = k "lff" lff
+    highpassFreq = k "hff" hff
+    overlaps     = k "ol" 1
+    gate         = k "g" 1
 
 c5wm' :: Int -> Double -> Double -> Double -> Double -> Double -> UGen -> UGen -> UGen -> UGen -> IO ()
 c5wm' n b a fs lff hff xMin xMax yMin yMax =
@@ -615,13 +614,13 @@ c5wm' n b a fs lff hff xMin xMax yMin yMax =
   $ lf lowpassFreq
   $ warp1 1 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    buffer       = ck "b" b
-    ampLevel     = ck "a" a
-    freqScale    = ck "fs" fs
-    lowpassFreq  = ck "lff" lff
-    highpassFreq = ck "hff" hff
-    overlaps     = ck "ol" 1
-    gate         = ck "g" 1
+    buffer       = k "b" b
+    ampLevel     = k "a" a
+    freqScale    = k "fs" fs
+    lowpassFreq  = k "lff" lff
+    highpassFreq = k "hff" hff
+    overlaps     = k "ol" 1
+    gate         = k "g" 1
 
 c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5pb n b sp r lff hff a at rl =
@@ -633,15 +632,15 @@ c5pb n b sp r lff hff a at rl =
   $ lf lowpassFreq
   $ playBuf 1 AR buffer rate 1 startPos Loop RemoveSynth
   where
-    buffer       = ck "b" b
-    startPos     = ck "sp" sp
-    rate         = ck "r" r
-    lowpassFreq  = ck "lff" lff
-    highpassFreq = ck "hff" hff
-    ampLevel     = ck "a" a
-    attack       = ck "at" at
-    release      = ck "rl" rl
-    gate         = ck "g" 1
+    buffer       = k "b" b
+    startPos     = k "sp" sp
+    rate         = k "r" r
+    lowpassFreq  = k "lff" lff
+    highpassFreq = k "hff" hff
+    ampLevel     = k "a" a
+    attack       = k "at" at
+    release      = k "rl" rl
+    gate         = k "g" 1
 
 --
 -- SynthDefs for c6.hs
@@ -656,14 +655,14 @@ c6w n b p a fs ws lff hff at rl =
   $ lf lowpassFreq
   $ warp1 2 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    buffer       = ck "b" b
-    pointer      = ck "p" p
-    ampLevel     = ck "a" a
-    freqScale    = ck "fs" fs
-    windowSize   = ck "ws" ws
-    lowpassFreq  = ck "lff" lff
-    highpassFreq = ck "hff" hff
-    attack       = ck "at" at
-    release      = ck "rl" rl
-    overlaps     = ck "ol" 1
-    gate         = ck "g" 1
+    buffer       = k "b" b
+    pointer      = k "p" p
+    ampLevel     = k "a" a
+    freqScale    = k "fs" fs
+    windowSize   = k "ws" ws
+    lowpassFreq  = k "lff" lff
+    highpassFreq = k "hff" hff
+    attack       = k "at" at
+    release      = k "rl" rl
+    overlaps     = k "ol" 1
+    gate         = k "g" 1
