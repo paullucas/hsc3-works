@@ -104,6 +104,10 @@ loopLogic x = (x == 1) ? (Loop, NoLoop)
 amp :: Num a => a -> a -> a
 amp ampLevel input = input * ampLevel
 
+-- Control KR
+ck :: String -> Double -> UGen
+ck key value = control KR key value
+
 -- Create & initialize synthdef
 synthDef :: Int -> String -> UGen -> IO ()
 synthDef node name input =
@@ -502,54 +506,55 @@ c3s2wr n b p a fs ws =
 c4tgr :: Int -> Double -> Double -> Double -> Double -> IO ()
 c4tgr n b r a at =
   synthDef n "c4tgr"
-  $ amp ampL
-  $ env gate att rel
+  $ amp ampLevel
+  $ env gate attack release
   $ lmtr
   $ fvrb
   $ hf 40
-  $ tgrain buf rate cpos dur
+  $ tgrain buffer rate cpos duration
   where
-    [buf, rate, ampL, dur, gate, att, rel] = control_set [control KR "b" b
-                                                         ,control KR "r" r
-                                                         ,control KR "a" a
-                                                         ,control KR "d" 5
-                                                         ,control KR "g" 1
-                                                         ,control KR "at" at
-                                                         ,control KR "rl" 40]
+    buffer       = ck "b" b
+    rate         = ck "r" r
+    ampLevel     = ck "a" a
+    duration     = ck "d" 5
+    gate         = ck "g" 1
+    attack       = ck "at" at
+    release      = ck "rl" 40
 
 c4tgrf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c4tgrf n b r lff hff a at =
   synthDef n "c4tgrf"
-  $ amp ampL
-  $ env gate att rel
+  $ amp ampLevel
+  $ env gate attack release
   $ lmtr
   $ fvrb
-  $ hf highpass
-  $ lf lowpass
-  $ tgrain buf rate cpos dur
+  $ hf highpassFreq
+  $ lf lowpassFreq
+  $ tgrain buffer rate cpos duration
   where
-    [buf, rate, lowpass, highpass, ampL, dur, gate, att, rel] = control_set [control KR "b" b
-                                                                            ,control KR "r" r
-                                                                            ,control KR "lff" lff
-                                                                            ,control KR "hff" hff
-                                                                            ,control KR "a" a
-                                                                            ,control KR "d" 5
-                                                                            ,control KR "g" 1
-                                                                            ,control KR "at" at
-                                                                            ,control KR "rl" 40]
+    buffer       = ck "b" b
+    rate         = ck "r" r
+    lowpassFreq  = ck "lff" lff
+    highpassFreq = ck "hff" hff
+    ampLevel     = ck "a" a
+    duration     = ck "d" 5
+    gate         = ck "g" 1
+    attack       = ck "at" at
+    release      = ck "rl" 40
 
 c4sio :: Int -> Double -> Double -> Double -> IO ()
 c4sio n f a rl =
   synthDef n "c4sio"
-  $ amp ampL
-  $ env gate 15 rel
+  $ amp ampLevel
+  $ env gate 15 release
   $ lmtr
   $ sinOsc AR (mce [freq, freq + 1]) 1
   where
-    [freq, ampL, rel, gate] = control_set [control KR "f" f
-                                          ,control KR "a" a
-                                          ,control KR "rl" rl
-                                          ,control KR "g" 1]
+    freq     = ck "f" f
+    ampLevel = ck "a" a
+    release  = ck "rl" rl
+    gate     = ck "g" 1
+
 --
 -- SynthDefs for c5.hs
 --
@@ -557,86 +562,86 @@ c4sio n f a rl =
 c5wr :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5wr n b p a fs ws lff hff =
   synthDef n "c5wr"
-  $ amp ampL
+  $ amp ampLevel
   $ env gate 15 40
   $ fvrb' 1 1 1
-  $ hf highpass
-  $ lf lowpass
-  $ warp1 2 buf ptr fscale wsize (-1) olaps 0.0 4
+  $ hf highpassFreq
+  $ lf lowpassFreq
+  $ warp1 2 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    [buf, ptr, ampL, fscale, wsize, lowpass, highpass, olaps, gate] = control_set [control KR "b" b
-                                                                                  ,control KR "p" p
-                                                                                  ,control KR "a" a
-                                                                                  ,control KR "fs" fs
-                                                                                  ,control KR "ws" ws
-                                                                                  ,control KR "lff" lff
-                                                                                  ,control KR "hff" hff
-                                                                                  ,control KR "ol" 1
-                                                                                  ,control KR "g" 1]
+    buffer       = ck "b" b
+    pointer      = ck "p" p
+    ampLevel     = ck "a" a
+    freqScale    = ck "fs" fs
+    windowSize   = ck "ws" ws
+    lowpassFreq  = ck "lff" lff
+    highpassFreq = ck "hff" hff
+    overlaps     = ck "ol" 1
+    gate         = ck "g" 1
 
 c5wm :: Int -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5wm n b a fs lff hff =
   let
-    ptr = mouseX KR 0 1 Linear 0.2
-    wsize = mouseY KR 0.05 6 Linear 0.2
+    pointer    = mouseX KR 0 1 Linear 0.2
+    windowSize = mouseY KR 0.05 6 Linear 0.2
   in
-  synthDef n "c5wm"
-  $ pan
-  $ amp ampL
-  $ env gate 15 40
-  $ hf highpass
-  $ lf lowpass
-  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+    synthDef n "c5wm"
+    $ pan
+    $ amp ampLevel
+    $ env gate 15 40
+    $ hf highpassFreq
+    $ lf lowpassFreq
+    $ warp1 1 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    [buf, ampL, fscale, lowpass, highpass, olaps, gate] = control_set [control KR "b" b
-                                                                      ,control KR "a" a
-                                                                      ,control KR "fs" fs
-                                                                      ,control KR "lff" lff
-                                                                      ,control KR "hff" hff
-                                                                      ,control KR "ol" 1
-                                                                      ,control KR "g" 1]
+    buffer       = ck "b" b
+    ampLevel     = ck "a" a
+    freqScale    = ck "fs" fs
+    lowpassFreq  = ck "lff" lff
+    highpassFreq = ck "hff" hff
+    overlaps     = ck "ol" 1
+    gate         = ck "g" 1
 
 c5wm' :: Int -> Double -> Double -> Double -> Double -> Double -> UGen -> UGen -> UGen -> UGen -> IO ()
 c5wm' n b a fs lff hff xMin xMax yMin yMax =
   let
-    ptr = mouseX KR xMin xMax Linear 0.2
-    wsize = mouseY KR yMin yMax Linear 0.2
+    pointer    = mouseX KR xMin xMax Linear 0.2
+    windowSize = mouseY KR yMin yMax Linear 0.2
   in
   synthDef n "c5wm"
   $ pan
-  $ amp ampL
+  $ amp ampLevel
   $ env gate 15 40
-  $ hf highpass
-  $ lf lowpass
-  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  $ hf highpassFreq
+  $ lf lowpassFreq
+  $ warp1 1 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    [buf, ampL, fscale, lowpass, highpass, olaps, gate] = control_set [control KR "b" b
-                                                                      ,control KR "a" a
-                                                                      ,control KR "fs" fs
-                                                                      ,control KR "lff" lff
-                                                                      ,control KR "hff" hff
-                                                                      ,control KR "ol" 1
-                                                                      ,control KR "g" 1]
+    buffer       = ck "b" b
+    ampLevel     = ck "a" a
+    freqScale    = ck "fs" fs
+    lowpassFreq  = ck "lff" lff
+    highpassFreq = ck "hff" hff
+    overlaps     = ck "ol" 1
+    gate         = ck "g" 1
 
 c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c5pb n b sp r lff hff a at rl =
   synthDef n "c5pb"
   $ pan
-  $ amp ampL
-  $ env gate att rel
-  $ hf highpass
-  $ lf lowpass
-  $ playBuf 1 AR buf rate 1 spos Loop RemoveSynth
+  $ amp ampLevel
+  $ env gate attack release
+  $ hf highpassFreq
+  $ lf lowpassFreq
+  $ playBuf 1 AR buffer rate 1 startPos Loop RemoveSynth
   where
-    [buf, spos, rate, lowpass, highpass, ampL, att, rel, gate] = control_set [control KR "b" b
-                                                                             ,control KR "sp" sp
-                                                                             ,control KR "r" r
-                                                                             ,control KR "lff" lff
-                                                                             ,control KR "hff" hff
-                                                                             ,control KR "a" a
-                                                                             ,control KR "at" at
-                                                                             ,control KR "rl" rl
-                                                                             ,control KR "g" 1]
+    buffer       = ck "b" b
+    startPos     = ck "sp" sp
+    rate         = ck "r" r
+    lowpassFreq  = ck "lff" lff
+    highpassFreq = ck "hff" hff
+    ampLevel     = ck "a" a
+    attack       = ck "at" at
+    release      = ck "rl" rl
+    gate         = ck "g" 1
 
 --
 -- SynthDefs for c6.hs
@@ -645,20 +650,20 @@ c5pb n b sp r lff hff a at rl =
 c6w :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
 c6w n b p a fs ws lff hff at rl =
   synthDef n "c6w"
-  $ amp ampL
-  $ env gate att rel
-  $ hf highpass
-  $ lf lowpass
-  $ warp1 2 buf ptr fscale wsize (-1) olaps 0.0 4
+  $ amp ampLevel
+  $ env gate attack release
+  $ hf highpassFreq
+  $ lf lowpassFreq
+  $ warp1 2 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    [buf, ptr, ampL, fscale, wsize, lowpass, highpass, att, rel, olaps, gate] = control_set [control KR "b" b
-                                                                                            ,control KR "p" p
-                                                                                            ,control KR "a" a
-                                                                                            ,control KR "fs" fs
-                                                                                            ,control KR "ws" ws
-                                                                                            ,control KR "lff" lff
-                                                                                            ,control KR "hff" hff
-                                                                                            ,control KR "at" at
-                                                                                            ,control KR "rl" rl
-                                                                                            ,control KR "ol" 1
-                                                                                            ,control KR "g" 1]
+    buffer       = ck "b" b
+    pointer      = ck "p" p
+    ampLevel     = ck "a" a
+    freqScale    = ck "fs" fs
+    windowSize   = ck "ws" ws
+    lowpassFreq  = ck "lff" lff
+    highpassFreq = ck "hff" hff
+    attack       = ck "at" at
+    release      = ck "rl" rl
+    overlaps     = ck "ol" 1
+    gate         = ck "g" 1
