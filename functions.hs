@@ -122,6 +122,40 @@ synthDef node name input =
 --   ;async $ d_recv mbus
 --   ;send $ s_new "mbus" (-1) AddToTail 1 []
 
+d_SC3_Recorder :: SC3_Recorder
+d_SC3_Recorder =
+    SC3_Recorder {rec_sftype = Wave
+                 ,rec_coding = PcmFloat
+                 ,rec_fname = "/tmp/sc3-recorder.wav"
+                 ,rec_nc = 2
+                 ,rec_bus = 0
+                 ,rec_buf_id = 2001
+                 ,rec_buf_frames = 48000
+                 ,rec_node_id = 2001
+                 ,rec_group_id = 1
+                 ,rec_dur = Just 60
+                 }
+
+recInit = withSC3
+  $ sendBundle
+  $ bundle immediately
+  $ rec_init_m def
+  where
+    def = d_SC3_Recorder
+
+recStart = withSC3
+  $ sendMessage
+  $ rec_begin_m def
+  where
+    def = d_SC3_Recorder
+
+recStop = withSC3
+  $ sendBundle
+  $ bundle immediately
+  $ rec_end_m def
+  where
+    def = d_SC3_Recorder
+
 --
 -- UGen Abstractions
 --
