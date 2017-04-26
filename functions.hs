@@ -139,22 +139,16 @@ d_SC3_Recorder =
 recInit = withSC3
   $ sendBundle
   $ bundle immediately
-  $ rec_init_m def
-  where
-    def = d_SC3_Recorder
+  $ rec_init_m d_SC3_Recorder
 
 recStart = withSC3
   $ sendMessage
-  $ rec_begin_m def
-  where
-    def = d_SC3_Recorder
+  $ rec_begin_m d_SC3_Recorder
 
 recStop = withSC3
   $ sendBundle
   $ bundle immediately
-  $ rec_end_m def
-  where
-    def = d_SC3_Recorder
+  $ rec_end_m d_SC3_Recorder
 
 --
 -- UGen Abstractions
