@@ -6,6 +6,8 @@ import Data.List
 import Data.Maybe
 import System.Environment
 import Control.Monad.IO.Class
+import System.IO.Unsafe
+import Data.IORef
 
 -- Sample Rate
 samplerate :: Double
@@ -76,6 +78,26 @@ bq n = withSC3 $ do
   ;r <- waitReply "/b_info"
   ;liftIO $ print r
 
+-- Query a node
+nq :: Int -> IO ()
+nq n = withSC3 $ do
+  send $ n_query [n]
+  ;r <- waitReply "/n_info"
+  ;liftIO $ print r
+
+nodeCounter :: IORef Integer
+nodeCounter = unsafePerformIO $ newIORef 2
+
+nn :: IO Integer
+nn = do
+  i <- readIORef nodeCounter
+  writeIORef nodeCounter $ i+1
+  return i
+
+n = do
+  i <- readIORef nodeCounter
+  return i
+
 -- Convert midi note number to hz
 m2h :: Floating a => a -> a
 m2h note = 440.0 * (2.0 ** ((note - 69.0) / 12.0))
@@ -105,10 +127,13 @@ amp :: Num a => a -> a -> a
 amp ampLevel input = input * ampLevel
 
 -- Create & initialize synthdef
-synthDef :: Int -> String -> UGen -> IO ()
-synthDef node name input =
-  withSC3 $ do async $ d_recv $ synthdef name $ out 0 input
-               ;send $ s_new name node AddToTail 1 []
+synthDef :: String -> UGen -> IO Int
+synthDef name input = do
+  node <- nn
+  ;withSC3
+    (do async $ d_recv $ synthdef name $ out 0 input
+        ;send $ s_new name (fromIntegral node) AddToTail 1 [])
+  ;return (fromIntegral node)
 
 -- -- Master bus limiter
 -- mbus :: Synthdef
@@ -122,19 +147,25 @@ synthDef node name input =
 --   ;async $ d_recv mbus
 --   ;send $ s_new "mbus" (-1) AddToTail 1 []
 
+-- recInit
+-- g
+-- recStart
+-- ...
+-- recStop
+-- f
+
 d_SC3_Recorder :: SC3_Recorder
 d_SC3_Recorder =
-    SC3_Recorder {rec_sftype = Wave
-                 ,rec_coding = PcmFloat
-                 ,rec_fname = "/tmp/sc3-recorder.wav"
-                 ,rec_nc = 2
-                 ,rec_bus = 0
-                 ,rec_buf_id = 2001
-                 ,rec_buf_frames = 48000
-                 ,rec_node_id = 2001
-                 ,rec_group_id = 1
-                 ,rec_dur = Just 60
-                 }
+  SC3_Recorder {rec_sftype = Wave
+               ,rec_coding = PcmFloat
+               ,rec_fname = "/tmp/sc3-recorder.wav"
+               ,rec_nc = 2
+               ,rec_bus = 0
+               ,rec_buf_id = 10
+               ,rec_buf_frames = 65536
+               ,rec_node_id = 2001
+               ,rec_group_id = 0
+               ,rec_dur = Just 60}
 
 recInit = withSC3
   $ sendBundle
@@ -202,13 +233,14 @@ pan input = pan2 input 0 1
 mX = mouseX KR 0 1 Linear 0.2
 
 mY = mouseY KR 0 1 Linear 0.2
+
 --
 -- SynthDefs
 --
 
-tg :: Int -> Double -> Double -> Double -> Double -> IO ()
-tg n b r a at =
-  synthDef n "tg"
+tg :: Double -> Double -> Double -> Double -> IO Int
+tg b r a at =
+  synthDef "tg"
   $ amp ampL
   $ env gate att rel
   $ tgrain buf rate cpos dur
@@ -221,9 +253,9 @@ tg n b r a at =
                                                          ,control KR "at" at
                                                          ,control KR "rl" 40]
 
-tgr :: Int -> Double -> Double -> Double -> Double -> IO ()
-tgr n b r a at =
-  synthDef n "tgr"
+tgr :: Double -> Double -> Double -> Double -> IO Int
+tgr b r a at =
+  synthDef "tgr"
   $ amp ampL
   $ env gate att rel
   $ fvrb
@@ -237,9 +269,9 @@ tgr n b r a at =
                                                          ,control KR "at" at
                                                          ,control KR "rl" 40]
 
-tgrf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-tgrf n b r lff hff a at =
-  synthDef n "tgrf"
+tgrf :: Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+tgrf b r lff hff a at =
+  synthDef "tgrf"
   $ amp ampL
   $ env gate att rel
   $ fvrb
@@ -258,9 +290,9 @@ tgrf n b r lff hff a at =
                                                                             ,control KR "rl" 40]
 
 
-tgg :: Int -> Double -> Double -> Double -> Double -> IO ()
-tgg n b r a at =
-  synthDef n "tgg"
+tgg :: Double -> Double -> Double -> Double -> IO Int
+tgg b r a at =
+  synthDef "tgg"
   $ amp ampL
   $ env gate att rel
   $ gvrb 0.5 1.0 1.0 0.5 15 1 0.7 0.5 300
@@ -274,9 +306,9 @@ tgg n b r a at =
                                                          ,control KR "at" at
                                                          ,control KR "rl" 40]
 
-so :: Int -> Double -> Double -> Double -> IO ()
-so n f a at =
-  synthDef n "so"
+so :: Double -> Double -> Double -> IO Int
+so f a at =
+  synthDef "so"
   $ amp ampL
   $ env gate att rel
   $ sinOsc AR freq 1
@@ -287,9 +319,9 @@ so n f a at =
                                                ,control KR "at" at
                                                ,control KR "rl" 40]
 
-sor :: Int -> Double -> Double -> Double -> IO ()
-sor n f a at =
-  synthDef n "sor"
+sor :: Double -> Double -> Double -> IO Int
+sor f a at =
+  synthDef "sor"
   $ amp ampL
   $ env gate att rel
   $ fvrb' 0.33 0.5 0.5
@@ -305,9 +337,9 @@ sor n f a at =
 -- SynthDefs for c1.hs
 --
 
-c1tg :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c1tg n b d r lff hff a rl =
-  synthDef n "c1tg"
+c1tg :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c1tg b d r lff hff a rl =
+  synthDef "c1tg"
   $ amp ampL
   $ env gate 25 rel
   $ gvrb 15 6 0.5 0.5 20 0 0.7 0.5 300
@@ -324,9 +356,9 @@ c1tg n b d r lff hff a rl =
                                                                        ,control KR "rl" rl
                                                                        ,control KR "g" 1]
 
-c1tgl :: Int -> Double -> Double -> Double -> IO ()
-c1tgl n b r a =
-  synthDef n "c1tgl"
+c1tgl :: Double -> Double -> Double -> IO Int
+c1tgl b r a =
+  synthDef "c1tgl"
   $ amp ampL
   $ env gate 10 40
   $ hf 50
@@ -339,9 +371,9 @@ c1tgl n b r a =
                                           ,control KR "g" 1
                                           ,control KR "a" a]
 
-c1sio :: Int -> Double -> Double -> Double -> IO ()
-c1sio n f a rl =
-  synthDef n "c1sio"
+c1sio :: Double -> Double -> Double -> IO Int
+c1sio f a rl =
+  synthDef "c1sio"
   $ amp ampL
   $ env gate 15 rel
   $ sinOsc AR (mce [freq, freq + 1]) 1
@@ -355,9 +387,9 @@ c1sio n f a rl =
 -- SynthDefs for c2.hs
 --
 
-c2s1pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c2s1pb n b sp r lff hff a at rl =
-  synthDef n "c2s1pb"
+c2s1pb :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c2s1pb b sp r lff hff a at rl =
+  synthDef "c2s1pb"
   $ amp ampL
   $ env gate att rel
   $ hf highpass
@@ -375,9 +407,9 @@ c2s1pb n b sp r lff hff a at rl =
                                                                              ,control KR "g" 1]
 
 
-c2s2pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c2s2pb n b sp r lff hff a at rl =
-  synthDef n "c2s2pb"
+c2s2pb :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c2s2pb b sp r lff hff a at rl =
+  synthDef "c2s2pb"
   $ fvrb 
   $ env gate att rel
   $ hf highpass
@@ -397,9 +429,9 @@ c2s2pb n b sp r lff hff a at rl =
                                                                                    ,control KR "l" 1]
 
 
-c2s2pbm :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c2s2pbm n b sp r lff hff a at rl =
-  synthDef n "c2s2pbm"
+c2s2pbm :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c2s2pbm b sp r lff hff a at rl =
+  synthDef "c2s2pbm"
   $ fvrb 
   $ env gate att rel
   $ hf highpass
@@ -417,9 +449,9 @@ c2s2pbm n b sp r lff hff a at rl =
                                                                              ,control KR "rl" rl
                                                                              ,control KR "g" 1]
 
-c2s2pg :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c2s2pg n b d cp r lff hff a at rl t =
-  synthDef n "c2s2pg"
+c2s2pg :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c2s2pg b d cp r lff hff a at rl t =
+  synthDef "c2s2pg"
   $ fvrb 
   $ env gate att rel
   $ hf highpass
@@ -442,9 +474,9 @@ c2s2pg n b d cp r lff hff a at rl t =
 -- SynthDefs for c3.hs
 --
 
-c3s2wlf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c3s2wlf n b p a lff fs ws =
-  synthDef n "c3s2wlf"
+c3s2wlf :: Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c3s2wlf b p a lff fs ws =
+  synthDef "c3s2wlf"
   $ amp ampL
   $ env gate 15 40
   $ lf lowpass
@@ -459,9 +491,9 @@ c3s2wlf n b p a lff fs ws =
                                                                         ,control KR "ol" 1
                                                                         ,control KR "g" 1]
 
-c3s2whf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c3s2whf n b p a hff fs ws =
-  synthDef n "c3s2whf"
+c3s2whf :: Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c3s2whf b p a hff fs ws =
+  synthDef "c3s2whf"
   $ amp ampL
   $ env gate 15 40
   $ hf highpass
@@ -476,9 +508,9 @@ c3s2whf n b p a hff fs ws =
                                                                          ,control KR "ol" 1
                                                                          ,control KR "g" 1]
 
-c3s2wr :: Int -> Double -> Double -> Double -> Double -> Double -> IO ()
-c3s2wr n b p a fs ws =
-  synthDef n "c3s2wr"
+c3s2wr :: Double -> Double -> Double -> Double -> Double -> IO Int
+c3s2wr b p a fs ws =
+  synthDef "c3s2wr"
   $ amp ampL
   $ env gate 15 40
   $ fvrb' 1 1 1
@@ -496,9 +528,9 @@ c3s2wr n b p a fs ws =
 -- SynthDefs for c4.hs
 --
 
-c4tgr :: Int -> Double -> Double -> Double -> Double -> IO ()
-c4tgr n b r a at =
-  synthDef n "c4tgr"
+c4tgr :: Double -> Double -> Double -> Double -> IO Int
+c4tgr b r a at =
+  synthDef "c4tgr"
   $ amp ampLevel
   $ env gate attack release
   $ lmtr
@@ -506,17 +538,17 @@ c4tgr n b r a at =
   $ hf 40
   $ tgrain buffer rate cpos duration
   where
-    buffer       = k "b" b
-    rate         = k "r" r
-    ampLevel     = k "a" a
-    duration     = k "d" 5
-    gate         = k "g" 1
-    attack       = k "at" at
-    release      = k "rl" 40
+    buffer   = k "b" b
+    rate     = k "r" r
+    ampLevel = k "a" a
+    duration = k "d" 5
+    gate     = k "g" 1
+    attack   = k "at" at
+    release  = k "rl" 40
 
-c4tgrf :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c4tgrf n b r lff hff a at =
-  synthDef n "c4tgrf"
+c4tgrf :: Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c4tgrf b r lff hff a at =
+  synthDef "c4tgrf"
   $ amp ampLevel
   $ env gate attack release
   $ lmtr
@@ -535,9 +567,9 @@ c4tgrf n b r lff hff a at =
     attack       = k "at" at
     release      = k "rl" 40
 
-c4sio :: Int -> Double -> Double -> Double -> IO ()
-c4sio n f a rl =
-  synthDef n "c4sio"
+c4sio :: Double -> Double -> Double -> IO Int
+c4sio f a rl =
+  synthDef "c4sio"
   $ amp ampLevel
   $ env gate 15 release
   $ lmtr
@@ -552,9 +584,9 @@ c4sio n f a rl =
 -- SynthDefs for c5.hs
 --
 
-c5wr :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c5wr n b p a fs ws lff hff =
-  synthDef n "c5wr"
+c5wr :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c5wr b p a fs ws lff hff =
+  synthDef "c5wr"
   $ amp ampLevel
   $ env gate 15 40
   $ fvrb' 1 1 1
@@ -572,13 +604,13 @@ c5wr n b p a fs ws lff hff =
     overlaps     = k "ol" 1
     gate         = k "g" 1
 
-c5wm :: Int -> Double -> Double -> Double -> Double -> Double -> IO ()
-c5wm n b a fs lff hff =
+c5wm :: Double -> Double -> Double -> Double -> Double -> IO Int
+c5wm b a fs lff hff =
   let
     pointer    = mouseX KR 0 1 Linear 0.2
     windowSize = mouseY KR 0.05 6 Linear 0.2
   in
-    synthDef n "c5wm"
+    synthDef "c5wm"
     $ pan
     $ amp ampLevel
     $ env gate 15 40
@@ -594,13 +626,13 @@ c5wm n b a fs lff hff =
     overlaps     = k "ol" 1
     gate         = k "g" 1
 
-c5wm' :: Int -> Double -> Double -> Double -> Double -> Double -> UGen -> UGen -> UGen -> UGen -> IO ()
-c5wm' n b a fs lff hff xMin xMax yMin yMax =
+c5wm' :: Double -> Double -> Double -> Double -> Double -> UGen -> UGen -> UGen -> UGen -> IO Int
+c5wm' b a fs lff hff xMin xMax yMin yMax =
   let
     pointer    = mouseX KR xMin xMax Linear 0.2
     windowSize = mouseY KR yMin yMax Linear 0.2
   in
-  synthDef n "c5wm"
+  synthDef "c5wm"
   $ pan
   $ amp ampLevel
   $ env gate 15 40
@@ -616,9 +648,9 @@ c5wm' n b a fs lff hff xMin xMax yMin yMax =
     overlaps     = k "ol" 1
     gate         = k "g" 1
 
-c5pb :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c5pb n b sp r lff hff a at rl =
-  synthDef n "c5pb"
+c5pb :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c5pb b sp r lff hff a at rl =
+  synthDef "c5pb"
   $ pan
   $ amp ampLevel
   $ env gate attack release
@@ -640,9 +672,9 @@ c5pb n b sp r lff hff a at rl =
 -- SynthDefs for c6.hs
 --
 
-c6w :: Int -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO ()
-c6w n b p a fs ws lff hff at rl =
-  synthDef n "c6w"
+c6w :: Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO Int
+c6w b p a fs ws lff hff at rl =
+  synthDef "c6w"
   $ amp ampLevel
   $ env gate attack release
   $ hf highpassFreq
