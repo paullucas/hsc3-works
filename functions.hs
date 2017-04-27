@@ -85,15 +85,19 @@ nq n = withSC3 $ do
   ;r <- waitReply "/n_info"
   ;liftIO $ print r
 
+-- Counter for available nodes
 nodeCounter :: IORef Integer
 nodeCounter = unsafePerformIO $ newIORef 2
 
+-- Increment next available node
 nn :: IO Integer
 nn = do
   i <- readIORef nodeCounter
   writeIORef nodeCounter $ i+1
   return i
 
+-- Get next available node
+n :: IO Integer
 n = do
   i <- readIORef nodeCounter
   return i
@@ -167,15 +171,18 @@ d_SC3_Recorder =
                ,rec_group_id = 0
                ,rec_dur = Just 60}
 
+recInit :: IO ()
 recInit = withSC3
   $ sendBundle
   $ bundle immediately
   $ rec_init_m d_SC3_Recorder
 
+recStart :: IO ()
 recStart = withSC3
   $ sendMessage
   $ rec_begin_m d_SC3_Recorder
 
+recStop :: IO ()
 recStop = withSC3
   $ sendBundle
   $ bundle immediately
@@ -190,8 +197,6 @@ k key value = control KR key value
 
 lmtr :: UGen -> UGen
 lmtr input = limiter input 0.8 0.001
--- lmtr input = limiter input 0.95 0.001
--- lmtr input = limiter input 0.99 0.001
 
 cpos :: UGen
 cpos = 0.1 * sinOsc KR 0.03 0
@@ -511,18 +516,18 @@ c3s2whf b p a hff fs ws =
 c3s2wr :: Double -> Double -> Double -> Double -> Double -> IO Int
 c3s2wr b p a fs ws =
   synthDef "c3s2wr"
-  $ amp ampL
+  $ amp ampLevel
   $ env gate 15 40
   $ fvrb' 1 1 1
-  $ warp1 1 buf ptr fscale wsize (-1) olaps 0.0 4
+  $ warp1 1 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
-    [buf, ptr, ampL, fscale, wsize, olaps, gate] = control_set [control KR "b" b
-                                                               ,control KR "p" p
-                                                               ,control KR "a" a
-                                                               ,control KR "fs" fs
-                                                               ,control KR "ws" ws
-                                                               ,control KR "ol" 1
-                                                               ,control KR "g" 1]
+    buffer     = k "b" b
+    pointer    = k "p" p
+    ampLevel   = k "a" a
+    freqScale  = k "fs" fs
+    windowSize = k "ws" ws
+    overlaps   = k "ol" 1
+    gate       = k "g" 1
 
 --
 -- SynthDefs for c4.hs
