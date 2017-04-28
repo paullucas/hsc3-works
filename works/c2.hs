@@ -1,13 +1,5 @@
-:m + Sound.SC3 Sound.OSC
-:l functions.hs
-
-sequence_
-  $ sd "/Users/paul/Producing/october20th-2016/sc8/"
-  $ map (\x -> "s" ++ (show x) ++ ".wav") [0..17]
-
-sequence_
-  $ sd "/home/paulll/Producing/october20th-2016/sc8/"
-  $ map (\x -> "s" ++ (show x) ++ ".wav") [0..17]
+sequence_ $ sd "/Users/paul/Producing/october20th-2016/sc8/" $ map (\x -> "s" ++ (show x) ++ ".wav") [0..17]
+sequence_ $ sd "/home/paulll/Producing/october20th-2016/sc8/" $ map (\x -> "s" ++ (show x) ++ ".wav") [0..17]
 
 i
 c2s1pb 3 1 (samplerate / 4) 0.4 1500 150 2 10 1

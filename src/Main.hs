@@ -1,7 +1,9 @@
 module Main where
 
 import System.Process
-import Sound.SC3
+import Functions
+import SynthDefs
+import UGens
 
 main :: IO ()
 main = do

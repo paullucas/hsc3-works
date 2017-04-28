@@ -1,13 +1,5 @@
-:m + Sound.SC3 Sound.OSC
-:l functions.hs
-
-sequence_
-  $ sd "/Users/paul/Producing/jan2nd-2017/smp/"
-  $ map (\x -> "s" ++ (show x) ++ "m.wav") [0..8]
-
-sequence_
-  $ sd "/home/paulll/Producing/jan2nd-2017/smp/"
-  $ map (\x -> "s" ++ (show x) ++ "m.wav") [0..8]
+sequence_ $ sd "/Users/paul/Producing/jan2nd-2017/smp/" $ map (\x -> "s" ++ (show x) ++ "m.wav") [0..8]
+sequence_ $ sd "/home/paulll/Producing/jan2nd-2017/smp/" $ map (\x -> "s" ++ (show x) ++ "m.wav") [0..8]
 
 i
 c4tgr 3 1 0.67 0.8 15
