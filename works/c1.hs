@@ -1,3 +1,5 @@
+-- Broken
+
 sequence_ $ sd "/Users/paul/Producing/november4th-2016/chops/smpls-mono/" ["s7m.wav", "s8m.wav"]
 sequence_ $ sd "/home/paulll/Producing/november4th-2016/chops/smpls-mono/" ["s7m.wav", "s8m.wav"]
 
