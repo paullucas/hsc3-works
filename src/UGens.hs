@@ -54,3 +54,6 @@ mY = mouseY KR 0 1 Linear 0.2
 
 loop' :: (Eq a, Num a) => a -> Loop
 loop' v = if v == 1 then Loop else NoLoop
+
+amp :: UGen -> UGen -> UGen
+amp ampLevel input = out 0 $ input * ampLevel

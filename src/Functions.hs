@@ -112,10 +112,6 @@ nq node = wsc $ do
   res <- waitReply "/n_info"
   liftIO $ print res
 
--- Amplify input
-amp :: Num a => a -> a -> a
-amp ampLevel input = input * ampLevel
-
 -- Allocate buffer
 b_alloc :: (Integral n2, Integral n1, Integral n) => n2 -> n1 -> n -> Message
 b_alloc buffer frames channels = msg "/b_alloc" [int32 buffer, int32 frames, int32 channels]
