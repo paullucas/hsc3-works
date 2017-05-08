@@ -2,8 +2,8 @@ module SynthDefs where
 
 import Functions
 import UGens
-import Sound.SC3.UGen
-import Sound.SC3.UGen.Bindings
+import Sound.SC3.UGen (UGen, Rate (AR, KR), mce)
+import Sound.SC3.UGen.Bindings.DB hiding (lpf, hpf, limiter, freeVerb, gVerb)
 
 --
 -- SynthDefs for c6.hs
@@ -14,7 +14,7 @@ c4sio f a rl =
   sd "c4sio"
   $ amp ampLevel
   $ env gate 15 release
-  $ lmtr
+  $ limiter 0.8 0.001
   $ sinOsc AR (mce [freq, freq + 1]) 1
   where
     freq     = k "f" f
@@ -27,9 +27,9 @@ c5wr b p a fs ws lff hff =
   sd "c5wr"
   $ amp ampLevel
   $ env gate 15 40
-  $ fvrb' 1 1 1
-  $ hf highpassFreq
-  $ lf lowpassFreq
+  $ freeVerb 1 1 1
+  $ hpf highpassFreq
+  $ lpf lowpassFreq
   $ warp1 2 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
     buffer       = k "b" b
@@ -47,8 +47,8 @@ c6w b p a fs ws lff hff at rl =
   sd "c6w"
   $ amp ampLevel
   $ env gate attack release
-  $ hf highpassFreq
-  $ lf lowpassFreq
+  $ hpf highpassFreq
+  $ lpf lowpassFreq
   $ warp1 2 buffer pointer freqScale windowSize (-1) overlaps 0.0 4
   where
     buffer       = k "b" b
