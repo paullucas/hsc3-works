@@ -5,12 +5,7 @@
 - [[https://github.com/paullucas/hsc3-works/blob/master/src/UGens.hs][UGens.hs]]
 
 ** Compositions
-- [[https://github.com/paullucas/hsc3-works/blob/master/works/c1.hs][c1.hs]] - Unreleased - ([[https://github.com/paullucas/overtone-works/blob/master/src/otworks/c20.clj][c20.clj]] rewrite)
-- [[https://github.com/paullucas/hsc3-works/blob/master/works/c2.hs][c2.hs]] - Unreleased - ([[https://github.com/paullucas/overtone-works/blob/master/src/otworks/c15.clj][c15.clj]] rewrite)
-- [[https://github.com/paullucas/hsc3-works/blob/master/works/c4.hs][c4.hs]] - Unreleased
 - [[https://github.com/paullucas/hsc3-works/blob/master/works/c6.hs][c6.hs]] - Unreleased
-** Sets
-- [[https://github.com/paullucas/hsc3-works/blob/master/works/c3.hs][c3.hs]]
 ** Quick Start
 #+BEGIN_SRC bash
 stack setup
