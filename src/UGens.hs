@@ -1,6 +1,7 @@
 module UGens where
 
-import Sound.SC3
+import Sound.SC3.UGen
+import Sound.SC3.UGen.Bindings
 
 k :: String -> Double -> UGen
 k key value = control KR key value
@@ -50,3 +51,6 @@ mX = mouseX KR 0 1 Linear 0.2
 
 mY :: UGen
 mY = mouseY KR 0 1 Linear 0.2
+
+loop' :: (Eq a, Num a) => a -> Loop
+loop' v = if v == 1 then Loop else NoLoop
