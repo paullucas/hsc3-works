@@ -47,7 +47,7 @@ smA m = sm m >> waitReply "/done"
 
 -- Create group on node 1
 g :: IO ()
-g = wsc . sm $ msg "/g_new" [int32 0, int32 1, int32 0]
+g = wsc . sm $ msg "/g_new" [int32 1, int32 1, int32 0]
 
 -- Create group on node n
 g' :: Int32 -> IO ()
