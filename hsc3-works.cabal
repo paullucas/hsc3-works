@@ -3,6 +3,7 @@ version:             0.1.0.0
 category:            Sound
 build-type:          Simple
 cabal-version:       >=1.10
+license:             MIT
 
 executable hsc3-works
   hs-source-dirs:      src
