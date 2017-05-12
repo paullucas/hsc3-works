@@ -1,5 +1,5 @@
 sdr "/Users/paul/Producing/april20th-2017/samples/" "f" [1..4]
-sdr "/home/paulll/Producing/april20th-2017/samples/" "f" [1..4]
+sdr "/home/plll/Producing/april20th-2017/samples/" "f" [1..4]
 
 g
 s1 <- c6w 0 0.1 2 0.08 10 2000 50 20 40
