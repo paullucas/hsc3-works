@@ -1,7 +1,7 @@
 module UGens where
 
-import Sound.SC3.UGen
-import Sound.SC3.UGen.Bindings
+import           Sound.SC3.UGen
+import           Sound.SC3.UGen.Bindings
 
 k :: String -> Double -> UGen
 k key value = control KR key value

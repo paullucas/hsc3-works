@@ -1,9 +1,10 @@
 module SynthDefs where
 
-import Functions
-import UGens
-import Sound.SC3.UGen (UGen, Rate (AR, KR), mce)
-import Sound.SC3.UGen.Bindings.DB hiding (lpf, hpf, limiter, freeVerb, gVerb)
+import           Functions
+import           Sound.SC3.UGen             (Rate (AR, KR), UGen, mce)
+import           Sound.SC3.UGen.Bindings.DB hiding (freeVerb, gVerb, hpf,
+                                             limiter, lpf)
+import           UGens
 
 --
 -- SynthDefs for c6.hs
@@ -37,3 +38,17 @@ c6wr buffer pointer db freqScale windowSize lpF hpF =
   $ hpf (k "hff" hpF)
   $ lpf (k "lff" lpF)
   $ warp1 2 (k "b" buffer) (k "p" pointer) (k "fs" freqScale) (k "ws" windowSize) (-1) (k "ol" 1) 0.0 4
+
+--
+-- SynthDefs for c7.hs
+--
+
+c7t :: Num b => Double -> Double -> Double -> Double -> Double -> Double -> Double -> IO b
+c7t buffer pointer freqScale windowSize db attack release =
+  sd "c7t"
+  $ o (k "a" db)
+  $ env (k "g" 1) (k "at" attack) (k "rl" release)
+  $ gVerb 0.5 1.0 1.0 0.5 15 1 0.7 0.5 300
+  $ warp1 2 (k "b" buffer) pointerOsc  (k "fs" freqScale) (k "ws" windowSize) (-1) (k "ol" 1) 0.0 4
+  where
+    pointerOsc = 0.1 * sinOsc KR (k "p" pointer) 0
