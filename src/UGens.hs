@@ -32,3 +32,6 @@ freeVerb mix room damp in_ =
 gVerb :: UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen -> UGen
 gVerb roomsize revtime damping inputbw spread drylevel earlyreflevel taillevel maxroomsize in_ =
   mkUGen Nothing [AR] (Right [0]) "GVerb" [in_,roomsize,revtime,damping,inputbw,spread,drylevel,earlyreflevel,taillevel,maxroomsize] Nothing 2 (Special 0) NoId
+
+pbuf :: UGen -> UGen -> UGen -> UGen -> UGen
+pbuf buffer rate trigger startPos = playBuf 2 AR buffer rate trigger startPos Loop RemoveSynth
