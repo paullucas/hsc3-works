@@ -150,11 +150,11 @@ rE = wsc . sendBundle . bundle immediately $ rec_end_m dsr
 -- Start SuperCollider
 boot :: IO ()
 boot = do
-    system "/run/current-system/sw/bin/pulseaudio -k"
-    system "/home/plll/.nix-profile/bin/scsynth -u 57110 &"
+    system "pulseaudio -k"
+    system "scsynth -u 57110 &"
     system "sleep 5"
-    system "/run/current-system/sw/bin/jack_connect SuperCollider:out_1 system:playback_1"
-    system "/run/current-system/sw/bin/jack_connect SuperCollider:out_2 system:playback_2"
+    system "jack_connect SuperCollider:out_1 system:playback_1"
+    system "jack_connect SuperCollider:out_2 system:playback_2"
     putStrLn "Ok!"
 
 bootD :: IO ()
