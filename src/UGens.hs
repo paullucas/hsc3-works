@@ -4,7 +4,7 @@ import           Sound.SC3.UGen
 import           Sound.SC3.UGen.Bindings
 
 k :: String -> Double -> UGen
-k key value = control KR key value
+k = control KR
 
 env :: UGen -> UGen -> UGen -> UGen -> UGen
 env gate attack release input =

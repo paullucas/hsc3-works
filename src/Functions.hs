@@ -25,9 +25,7 @@ nn = do
 
 -- Get next available node
 n :: IO Integer
-n = do
-  i <- readIORef nodeCounter
-  return i
+n = readIORef nodeCounter
 
 -- Communicate with SuperCollider
 wsc :: Connection UDP a -> IO a
@@ -123,9 +121,9 @@ b_allocRead buffer path = msg "/b_allocRead" [int32 buffer, string path, int32 0
 -- Load samples in directory
 sdr :: Show a => String -> String -> [a] -> IO ()
 sdr path suffix numbers =
-  sequence_ $ map loadFile files
+  mapM_ loadFile files
   where
-    files         = map (\x -> (show x) ++ suffix ++ ".wav") numbers
+    files         = map (\x -> show x ++ suffix ++ ".wav") numbers
     loadFile file = let filePath = path ++ file
                         index    = fromJust $ findIndex (file ==) files
                     in  wsc $ smA $ b_allocRead index filePath

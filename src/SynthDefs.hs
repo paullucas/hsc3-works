@@ -1,10 +1,10 @@
 module SynthDefs where
 
-import           Functions
-import           Sound.SC3.UGen             (Rate (AR, KR), UGen, mce)
-import           Sound.SC3.UGen.Bindings.DB hiding (freeVerb, gVerb, hpf,
-                                             limiter, lpf)
-import           UGens
+import  Functions
+import  Sound.SC3.UGen             (Rate (AR, KR), UGen, mce)
+import  Sound.SC3.UGen.Bindings.DB hiding (freeVerb, gVerb, hpf,
+                                    limiter, lpf)
+import  UGens
 
 --
 -- SynthDefs for c6.hs
