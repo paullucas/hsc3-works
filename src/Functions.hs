@@ -125,7 +125,7 @@ sdr path suffix numbers =
   where
     files         = map (\x -> show x ++ suffix ++ ".wav") numbers
     loadFile file = let filePath = path ++ file
-                        index    = fromJust $ findIndex (file ==) files
+                        index    = fromJust $ elemIndex file files
                     in  wsc $ smA $ b_allocRead index filePath
 
 -- Default recording settings
