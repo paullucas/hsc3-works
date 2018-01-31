@@ -1,5 +1,6 @@
 module UGens where
 
+import           Sound.SC3.Common.Envelope
 import           Sound.SC3.UGen
 import           Sound.SC3.UGen.Bindings
 

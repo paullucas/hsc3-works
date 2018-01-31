@@ -9,5 +9,11 @@ executable hsc3-works
   hs-source-dirs:      src
   main-is:             Main.hs
   default-language:    Haskell2010
-  other-modules:       Functions, SynthDefs, UGens
-  build-depends:       base >=4.8, process >=1.2, hsc3 >=0.15 && <0.16, hosc >=0.15 && <0.16
+  other-modules:       Functions
+                     , UGens
+                     , SynthDefs.Types
+                     , SynthDefs.C6
+                     , SynthDefs.C7
+                     , SynthDefs.C8
+                     , SynthDefs.C10
+  build-depends:       base >=4.8, process >=1.2, hsc3 >=0.16 && <0.17, hosc >=0.16 && <0.17

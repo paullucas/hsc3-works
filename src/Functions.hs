@@ -1,16 +1,19 @@
 module Functions where
 
-import Data.Int
-import Data.List
-import Data.Maybe
-import Data.IORef
-import Sound.OSC
-import Sound.SC3.Server.Graphdef (Graphdef, encode_graphdef)
-import Sound.SC3.Server.Synthdef (Synthdef, synthdef, synthdef_to_graphdef)
-import Sound.SC3.Server.Recorder (SC3_Recorder, rec_init_m, rec_begin_m, rec_end_m, default_SC3_Recorder, rec_buf_frames)
-import Sound.SC3.UGen (UGen)
-import System.Process
-import System.IO.Unsafe
+import           Data.Int
+import           Data.IORef
+import           Data.List
+import           Data.Maybe
+import           Sound.OSC
+import           Sound.SC3.Server.Graphdef (Graphdef, encode_graphdef)
+import           Sound.SC3.Server.Recorder (SC3_Recorder, default_SC3_Recorder,
+                                            rec_begin_m, rec_buf_frames,
+                                            rec_end_m, rec_init_m)
+import           Sound.SC3.Server.Synthdef (Synthdef, synthdef,
+                                            synthdef_to_graphdef)
+import           Sound.SC3.UGen            (UGen)
+import           System.IO.Unsafe
+import           System.Process
 
 -- Counter for available nodes
 nodeCounter :: IORef Integer
