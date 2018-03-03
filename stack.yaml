@@ -1,9 +1,11 @@
-flags: {}
-extra-package-dbs: []
-packages:
-- .
-extra-deps:
-- hosc-0.16
-- hsc3-0.16
 resolver: lts-9.21
-# resolver: lts-8.12
+packages:
+- '.'
+- location:
+    git: https://github.com/paullucas/hosc.git
+    commit: fe9343ed61d497619e659cf21d468fb6c54dd232
+  extra-dep: true
+- location:
+    git: https://github.com/paullucas/hsc3.git
+    commit: 05db5ad3e8b6e260acae06445ca41cd72c4e28d0
+  extra-dep: true
