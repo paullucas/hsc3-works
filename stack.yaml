@@ -9,3 +9,7 @@ packages:
     git: https://github.com/paullucas/hsc3.git
     commit: 05db5ad3e8b6e260acae06445ca41cd72c4e28d0
   extra-dep: true
+- location:
+    git: https://github.com/paullucas/hsc3-lang.git
+    commit: 627d2118f518bb109723e00c088b4fda9340d78c
+  extra-dep: true
