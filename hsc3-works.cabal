@@ -17,3 +17,4 @@ executable hsc3-works
                      , SynthDefs.C8
                      , SynthDefs.C10
   build-depends:       base >=4.8, process >=1.2, hsc3 >=0.16 && <0.17, hosc >=0.16 && <0.17
+  ghc-options: -Wall -Werror

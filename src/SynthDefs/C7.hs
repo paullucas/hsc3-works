@@ -1,9 +1,8 @@
 module SynthDefs.C7 where
 
 import           Functions
-import           Sound.SC3.UGen             (Rate (AR, KR), UGen, mce)
-import           Sound.SC3.UGen.Bindings.DB hiding (freeVerb, gVerb, hpf,
-                                             limiter, lpf)
+import           Sound.SC3.UGen             (Rate (KR))
+import           Sound.SC3.UGen.Bindings.DB hiding (gVerb)
 import           SynthDefs.Types
 import           UGens
 
@@ -20,3 +19,4 @@ c7t buffer pointer freqScale windowSize db attack release =
   $ warp1 2 (k "b" buffer) pointerOsc  (k "fs" freqScale) (k "ws" windowSize) (-1) (k "ol" 1) 0.0 4
   where
     pointerOsc = 0.1 * sinOsc KR (k "p" pointer) 0
+

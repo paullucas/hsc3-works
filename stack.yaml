@@ -5,4 +5,5 @@ packages:
 extra-deps:
 - hosc-0.16
 - hsc3-0.16
-resolver: lts-8.12
+resolver: lts-9.21
+# resolver: lts-8.12

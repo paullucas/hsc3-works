@@ -2,7 +2,7 @@ module UGens where
 
 import           Sound.SC3.Common.Envelope
 import           Sound.SC3.UGen
-import           Sound.SC3.UGen.Bindings
+import           Sound.SC3.UGen.Bindings   hiding (gate, mix)
 
 k :: String -> Double -> UGen
 k = control KR

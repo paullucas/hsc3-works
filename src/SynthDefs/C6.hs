@@ -1,9 +1,8 @@
 module SynthDefs.C6 where
 
 import           Functions
-import           Sound.SC3.UGen             (Rate (AR, KR), UGen, mce)
-import           Sound.SC3.UGen.Bindings.DB hiding (freeVerb, gVerb, hpf,
-                                             limiter, lpf)
+import           Sound.SC3.UGen             (Rate (AR), mce)
+import           Sound.SC3.UGen.Bindings.DB hiding (freeVerb, hpf, limiter, lpf)
 import           SynthDefs.Types
 import           UGens
 

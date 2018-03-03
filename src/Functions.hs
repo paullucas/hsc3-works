@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 module Functions where
 
 import           Data.Int
@@ -9,14 +10,14 @@ import           Sound.SC3.Server.Graphdef (Graphdef, encode_graphdef)
 import           Sound.SC3.Server.Recorder (SC3_Recorder, default_SC3_Recorder,
                                             rec_begin_m, rec_buf_frames,
                                             rec_end_m, rec_init_m)
-import           Sound.SC3.Server.Synthdef (Synthdef, synthdef,
-                                            synthdef_to_graphdef)
+import           Sound.SC3.Server.Synthdef (synthdef, synthdef_to_graphdef)
 import           Sound.SC3.UGen            (UGen)
 import           System.IO.Unsafe
 import           System.Process
 
 -- Counter for available nodes
 nodeCounter :: IORef Integer
+{-# NOINLINE nodeCounter #-}
 nodeCounter = unsafePerformIO $ newIORef 2
 
 -- Increment next available node
@@ -75,7 +76,7 @@ sd :: Num b => String -> UGen -> IO b
 sd name ugen = do
   node <- nn
   wsc $ do
-    smA . d_recv . synthdef_to_graphdef $ synthdef name ugen
+    _ <- smA . d_recv . synthdef_to_graphdef $ synthdef name ugen
     sm $ s_new name (fromIntegral node)
   return (fromIntegral node)
 
@@ -108,6 +109,7 @@ n_query :: Integral n => n -> Message
 n_query node = msg "/n_query" [int32 node]
 
 -- Query a node & print response
+nq :: Integral n => n -> IO ()
 nq node = wsc $ do
   sm $ n_query node
   res <- waitReply "/n_info"
@@ -151,15 +153,15 @@ rE = wsc . sendBundle . bundle immediately $ rec_end_m dsr
 -- Start SuperCollider
 boot :: IO ()
 boot = do
-    system "pulseaudio -k"
-    system "scsynth -u 57110 &"
-    system "sleep 5"
-    system "jack_connect SuperCollider:out_1 system:playback_1"
-    system "jack_connect SuperCollider:out_2 system:playback_2"
+    _ <- system "pulseaudio -k"
+    _ <- system "scsynth -u 57110 &"
+    _ <- system "sleep 5"
+    _ <- system "jack_connect SuperCollider:out_1 system:playback_1"
+    _ <- system "jack_connect SuperCollider:out_2 system:playback_2"
     putStrLn "Ok!"
 
 bootD :: IO ()
 bootD = do
-    system "scsynth -u 57110 &"
-    system "sleep 5"
+    _ <- system "scsynth -u 57110 &"
+    _ <- system "sleep 5"
     putStrLn "Ok!"
