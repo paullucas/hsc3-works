@@ -2,104 +2,88 @@ module UGens where
 
 import           Sound.SC3.Common.Envelope
 import           Sound.SC3.UGen
-import           Sound.SC3.UGen.Bindings   hiding (gate, mix)
+import qualified Sound.SC3.UGen.Bindings.DB as U
 
+--
+-- UGen Type Aliases
+--
+type In_ = UGen
+
+type Db_ = UGen
+
+type Freq_ = UGen
+
+type Lvl_ = UGen
+
+type Dur_ = UGen
+
+type RoomSize_ = UGen
+
+type RevTime_ = UGen
+
+type Damp_ = UGen
+
+type InBW_ = UGen
+
+type Spread_ = UGen
+
+type DryLvl_ = UGen
+
+type EarlyRefLvl_ = UGen
+
+type TailLvl_ = UGen
+
+type MaxRoomSize_ = UGen
+
+type Mix_ = UGen
+
+type BufN_ = UGen
+
+type SampleRate_ = UGen
+
+type Trig_ = UGen
+
+type StartPos_ = UGen
+
+--
+-- UGen Wrapper Fns
+--
 k :: String -> Double -> UGen
 k = control KR
 
 env :: UGen -> UGen -> UGen -> UGen -> UGen
 env gate attack release input =
-  input * envGen KR gate 1 0 1 RemoveSynth (envASR attack 1 release EnvLin)
+  input * U.envGen KR gate 1 0 1 RemoveSynth (envASR attack 1 release EnvLin)
 
-o :: UGen -> UGen -> UGen
-o db input = out 0 $ input * db
+o :: Db_ -> In_ -> UGen
+o db input = U.out 0 $ input * db
 
-lpf :: UGen -> UGen -> UGen
-lpf freq in_ =
-  mkUGen
-    Nothing
-    [KR, AR]
-    (Right [0])
-    "LPF"
-    [in_, freq]
-    Nothing
-    1
-    (Special 0)
-    NoId
+lpf :: Freq_ -> In_ -> UGen
+lpf f i = U.lpf i f
 
-hpf :: UGen -> UGen -> UGen
-hpf freq in_ =
-  mkUGen
-    Nothing
-    [KR, AR]
-    (Right [0])
-    "HPF"
-    [in_, freq]
-    Nothing
-    1
-    (Special 0)
-    NoId
+hpf :: Freq_ -> In_ -> UGen
+hpf f i = U.hpf i f
 
-limiter :: UGen -> UGen -> UGen -> UGen
-limiter level dur in_ =
-  mkUGen
-    Nothing
-    [AR]
-    (Right [0])
-    "Limiter"
-    [in_, level, dur]
-    Nothing
-    1
-    (Special 0)
-    NoId
+limiter :: Lvl_ -> Dur_ -> In_ -> UGen
+limiter l d i = U.limiter i l d
 
-freeVerb :: UGen -> UGen -> UGen -> UGen -> UGen
-freeVerb mix room damp in_ =
-  mkUGen
-    Nothing
-    [AR]
-    (Right [0])
-    "FreeVerb"
-    [in_, mix, room, damp]
-    Nothing
-    1
-    (Special 0)
-    NoId
+freeVerb :: Mix_ -> RoomSize_ -> Damp_ -> In_ -> UGen
+freeVerb mx room damp i = U.freeVerb i mx room damp
 
 gVerb ::
-     UGen
+     RoomSize_
+  -> RevTime_
+  -> Damp_
+  -> InBW_
+  -> Spread_
+  -> DryLvl_
+  -> EarlyRefLvl_
+  -> TailLvl_
+  -> MaxRoomSize_
+  -> In_
   -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-  -> UGen
-gVerb roomsize revtime damping inputbw spread drylevel earlyreflevel taillevel maxroomsize in_ =
-  mkUGen
-    Nothing
-    [AR]
-    (Right [0])
-    "GVerb"
-    [ in_
-    , roomsize
-    , revtime
-    , damping
-    , inputbw
-    , spread
-    , drylevel
-    , earlyreflevel
-    , taillevel
-    , maxroomsize
-    ]
-    Nothing
-    2
-    (Special 0)
-    NoId
+gVerb rs rt d bw sp dl rl tl mrs i = U.gVerb i rs rt d bw sp dl rl tl mrs
 
-pbuf :: UGen -> UGen -> UGen -> UGen -> UGen
+pbuf :: BufN_ -> SampleRate_ -> Trig_ -> StartPos_ -> UGen
 pbuf buffer rate trigger startPos =
-  playBuf 2 AR buffer rate trigger startPos Loop RemoveSynth
+  U.playBuf 2 AR buffer rate trigger startPos Loop RemoveSynth
