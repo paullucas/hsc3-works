@@ -7,6 +7,12 @@ import qualified Sound.SC3.UGen.Bindings.DB as U
 --
 -- UGen Type Aliases
 --
+type Gate_ = UGen
+
+type Att_ = UGen
+
+type Rel_ = UGen
+
 type In_ = UGen
 
 type Db_ = UGen
@@ -51,12 +57,12 @@ type StartPos_ = UGen
 k :: String -> Double -> UGen
 k = control KR
 
-env :: UGen -> UGen -> UGen -> UGen -> UGen
+env :: Gate_ -> Att_ -> Rel_ -> In_ -> UGen
 env gate attack release input =
   input * U.envGen KR gate 1 0 1 RemoveSynth (envASR attack 1 release EnvLin)
 
 o :: Db_ -> In_ -> UGen
-o db input = U.out 0 $ input * db
+o db i = U.out 0 $ i * db
 
 lpf :: Freq_ -> In_ -> UGen
 lpf f i = U.lpf i f
