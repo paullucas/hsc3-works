@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 pulseaudio -k
 scsynth -u 57110 &
 sleep 5

@@ -21,3 +21,4 @@ executable hsc3-works
                      , hsc3 == 0.17
                      , hosc == 0.17
                      , hsc3-lang == 0.17
+                     , pretty-simple

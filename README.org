@@ -6,10 +6,10 @@
 
 ** Compositions
 | File  | Released? | Name  | Album           | Notes |
-| [[https://github.com/paullucas/hsc3-works/blob/master/works/c6.hs][c6.hs]] | No        |       |                 |       |
-| [[https://github.com/paullucas/hsc3-works/blob/master/works/c7.hs][c7.hs]] | No        |       |                 |       |
-| [[https://github.com/paullucas/hsc3-works/blob/master/works/c8.hs][c8.hs]] | No        |       |                 |       |
-| [[https://github.com/paullucas/hsc3-works/blob/master/works/c9.hs][c9.hs]] | Yes       | [[https://collapsedstructures.bandcamp.com/track/crawl][Crawl]] | [[https://collapsedstructures.bandcamp.com/album/steel-and-decay][Steel and Decay]] |       |
+| [[https://github.com/paullucas/hsc3-works/blob/master/src/Works/C6.hs][C6.hs]] | No        |       |                 |       |
+| [[https://github.com/paullucas/hsc3-works/blob/master/src/Works/C7.hs][C7.hs]] | No        |       |                 |       |
+| [[https://github.com/paullucas/hsc3-works/blob/master/src/Works/C8.hs][C8.hs]] | No        |       |                 |       |
+| [[https://github.com/paullucas/hsc3-works/blob/master/src/Works/C9.hs][C9.hs]] | Yes       | [[https://collapsedstructures.bandcamp.com/track/crawl][Crawl]] | [[https://collapsedstructures.bandcamp.com/album/steel-and-decay][Steel and Decay]] |       |
 ** Quick Start
 #+BEGIN_SRC bash
 stack setup
