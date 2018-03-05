@@ -10,7 +10,7 @@ import           UGens
 -- SynthDefs for c8.hs
 --
 
-c8p :: Num b => Buf -> SRate -> Trig -> SPos -> Db -> LPF -> HPF -> Attack -> Release -> IO b
+c8p :: Buf -> SRate -> Trig -> SPos -> Db -> LPF -> HPF -> Attack -> Release -> IO Int
 c8p buffer rate trigger startPos db lpF hpF attack release =
   sd "c8p"
   $ o (k "a" db)

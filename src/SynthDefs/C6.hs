@@ -10,13 +10,13 @@ import           UGens
 -- SynthDefs for c6.hs
 --
 
-c6s :: Num b => Freq -> Db -> Release -> IO b
+c6s :: Freq -> Db -> Release -> IO Int
 c6s frequency db release =
   sd "c6s"
   $ o (k "a" db)
   $ env (k "g" 1) 15 (k "rl" release)
   $ limiter 0.8 0.001
-  $ sinOsc AR (mce [freq, freq + 1]) 1
+  $ sinO (mce [freq, freq + 1]) 1
   where
     freq = k "f" frequency
 

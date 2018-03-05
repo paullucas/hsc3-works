@@ -10,7 +10,7 @@ import           UGens
 -- SynthDefs for c7.hs
 --
 
-c7t :: Num b => Buf -> Pointer -> FreqScale -> WindowSize -> Db -> Attack -> Release -> IO b
+c7t :: Buf -> Pointer -> FreqScale -> WindowSize -> Db -> Attack -> Release -> IO Int
 c7t buffer pointer freqScale windowSize db attack release =
   sd "c7t"
   $ o (k "a" db)

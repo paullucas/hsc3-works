@@ -51,6 +51,8 @@ type Trig_ = UGen
 
 type StartPos_ = UGen
 
+type Phase_ = UGen
+
 --
 -- UGen Wrapper Fns
 --
@@ -93,3 +95,9 @@ gVerb rs rt d bw sp dl rl tl mrs i = U.gVerb i rs rt d bw sp dl rl tl mrs
 pbuf :: BufN_ -> SampleRate_ -> Trig_ -> StartPos_ -> UGen
 pbuf buffer rate trigger startPos =
   U.playBuf 2 AR buffer rate trigger startPos Loop RemoveSynth
+
+sinO :: Freq_ -> Phase_ -> UGen
+sinO = U.sinOsc AR
+
+sinO' :: Rate -> Freq_ -> Phase_ -> UGen
+sinO' = U.sinOsc
